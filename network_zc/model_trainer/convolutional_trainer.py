@@ -2,23 +2,32 @@
 For the first test to train neural networks for zc model using convolution layers.
 """
 # Third-party libraries
-from keras.layers import Input, Dense, Reshape, Flatten, Dropout, LeakyReLU, Conv2D, Conv2DTranspose
+from keras.layers import Input, Dense, Reshape, Flatten, Dropout, LeakyReLU, Conv2D, Conv2DTranspose, LocallyConnected2D
 from keras import optimizers
 from keras.models import Model
 from keras.callbacks import TensorBoard
 from keras import regularizers
 from keras.layers.normalization import BatchNormalization
+import keras.backend as K
 import numpy as np
 
 # My libraries
 from network_zc.tools import file_helper
 
 # some initial parameter
-training_num = 3000
+training_num = 4800
 testing_num = 0
 model_name = 'convolution_model'
 epochs = 300
-batch_size = 128
+batch_size = 64
+
+
+def root_mean_squared_error(y_true, y_pred):
+    return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
+
+
+def mean_absolute_error(y_true, y_pred):
+    return K.mean(K.abs(y_pred - y_true), axis=-1)
 
 
 if __name__ == '__main__':
@@ -41,8 +50,8 @@ if __name__ == '__main__':
     # predictions = Reshape((20, 27, 1))(layer3)
     layer3 = Dense(7*10*64)(layer3)
     layer3 = BatchNormalization()(layer3)
-    layer3 = Dropout(0.2)(layer3)
     layer3 = LeakyReLU(alpha=0.3)(layer3)
+    layer3 = Dropout(0.2)(layer3)
     layer3 = Reshape((7, 10, 64))(layer3)
     layer4 = Conv2DTranspose(filters=32, kernel_size=3, strides=1, padding='valid')(layer3)
     layer4 = BatchNormalization()(layer4)
@@ -54,7 +63,7 @@ if __name__ == '__main__':
     model = Model(inputs=inputs, outputs=predictions)
     # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
     adam = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-    model.compile(optimizer=adam, loss='mse', metrics=['mse'])
+    model.compile(optimizer=adam, loss='mse', metrics=[root_mean_squared_error, mean_absolute_error])
     # to train model
     # the data for training is only ssta
     # training_data, testing_data = file_helper.load_sst_for_conv2d(training_num, testing_num)

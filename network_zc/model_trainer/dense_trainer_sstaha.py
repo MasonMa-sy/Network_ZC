@@ -17,7 +17,7 @@ from network_zc.tools import file_helper
 # some initial parameter
 training_num = 4800
 testing_num = 0
-model_name = 'dense_model'
+model_name = 'dense_model_sstaha'
 epochs = 300
 batch_size = 128
 
@@ -37,7 +37,7 @@ def mean_squared_error(y_true, y_pred):
 if __name__ == '__main__':
     # To define the model
     # l2_lamda = 0.00000
-    inputs = Input(shape=(540,))
+    inputs = Input(shape=(1080,))
     # x = Dense(128, activation='relu', kernel_regularizer=regularizers.l2(l2_lamda),
     #           bias_regularizer=regularizers.l2(l2_lamda))(inputs)
     # x = Dropout(0.2)(x)
@@ -65,9 +65,9 @@ if __name__ == '__main__':
     model.compile(optimizer=adam, loss=mean_squared_error, metrics=[mean_squared_error, root_mean_squared_error,
                                                                     mean_absolute_error])
     # to train model
-    training_data, testing_data = file_helper.load_sst_for_dense(training_num, testing_num)
-    data_x = training_data[0:-1]
-    data_y = training_data[1:]
+    training_data, testing_data = file_helper.load_sstha_for_conv2d(training_num, testing_num)
+    data_x = np.reshape(training_data[:-1], (training_num, 1080))
+    data_y = np.reshape(training_data[1:, :, :, 0], (training_num, 540))
     # shuffle the data for valid
     # permutation = np.random.permutation(data_x.shape[0])
     # shuffled_x = data_x[permutation]

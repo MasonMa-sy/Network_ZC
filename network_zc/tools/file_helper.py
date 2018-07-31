@@ -5,6 +5,8 @@ This script is done for load SST data from .dat.
 # Third-party libraries
 import numpy as np
 
+data_file = 'data_1'
+
 
 def load_sst_for_dense(training_num, testing_num=0):
     """
@@ -53,7 +55,7 @@ def read_data(num):
     :return: One-dimensional array,length 540
     """
     file_num = "%05d" % num
-    filename = "D:\msy\projects\zc\zcdata\data\data_" + file_num + ".dat"
+    filename = "D:\msy\projects\zc\zcdata\\"+data_file+"\data_" + file_num + ".dat"
     fh = open(filename, mode='r')
     list_temp = []
     for line in fh:
@@ -73,7 +75,7 @@ def read_data(num):
 
 def load_sstha_for_conv2d(training_num, testing_num=0):
     """
-    Return [training_num+1, 20, 27, 1] data of ssta and ha for conv2d model.
+    Return [training_num+1, 20, 27, 2] data of ssta and ha for conv2d model.
     The data form 0 to train_num is training data.If validation_num
     TODO for Notes
     :param training_num:
@@ -102,7 +104,7 @@ def read_data_sstaha(num):
     :return: One-dimensional array,length 540
     """
     file_num = "%05d" % num
-    filename = "D:\msy\projects\zc\zcdata\data\data_" + file_num + ".dat"
+    filename = "D:\msy\projects\zc\zcdata\\"+data_file+"\data_" + file_num + ".dat"
     fh = open(filename, mode='r')
     list_temp = []
     for line in fh:

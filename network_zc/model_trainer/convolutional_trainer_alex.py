@@ -2,7 +2,7 @@
 For the first test to train neural networks for zc model using convolution layers.
 """
 # Third-party libraries
-from keras.layers import Input, Dense, Reshape, Flatten, Dropout, LeakyReLU, Conv2D, Conv2DTranspose
+from keras.layers import Input, Dense, Reshape, Flatten, Dropout, LeakyReLU, Conv2D, Conv2DTranspose, LocallyConnected2D
 from keras import optimizers
 from keras.models import Model
 from keras.callbacks import TensorBoard
@@ -14,7 +14,7 @@ import numpy as np
 from network_zc.tools import file_helper
 
 # some initial parameter
-training_num = 10000
+training_num = 7000
 testing_num = 0
 model_name = 'convolution_model_alex'
 epochs = 300
@@ -26,22 +26,23 @@ if __name__ == '__main__':
     inputs = Input(shape=(20, 27, 2))
     layer1 = BatchNormalization()(inputs)
     # 20x27 to 10x14
-    layer1 = Conv2D(filters=32, kernel_size=7, strides=2, padding='same')(layer1)
+    # for conv2d, the padding is same for layer1 and layer2,and the kernel_sizes are 7 and 5.
+    layer1 = LocallyConnected2D(filters=32, kernel_size=5, strides=2, padding='valid')(layer1)
     layer1 = BatchNormalization()(layer1)
     layer1 = LeakyReLU(alpha=0.3)(layer1)
     # layer1 = Dropout(0.2)(layer1)
     # 10x14 to 10x14
-    layer2 = Conv2D(filters=64, kernel_size=5, strides=1, padding='same')(layer1)
+    layer2 = LocallyConnected2D(filters=64, kernel_size=3, strides=1, padding='valid')(layer1)
     layer2 = BatchNormalization()(layer2)
     layer2 = LeakyReLU(alpha=0.3)(layer2)
     # layer2 = Dropout(0.2)(layer2)
     # print(layer2.get_shape().as_list())
     # 10x14 to 8x12
-    layer3 = Conv2D(filters=64, kernel_size=3, strides=1, padding='valid')(layer2)
+    layer3 = LocallyConnected2D(filters=64, kernel_size=3, strides=1, padding='valid')(layer2)
     layer3 = BatchNormalization()(layer3)
     layer3 = LeakyReLU(alpha=0.3)(layer3)
     # 8x12 to 6x10
-    layer4 = Conv2D(filters=80, kernel_size=3, strides=1, padding='valid')(layer3)
+    layer4 = LocallyConnected2D(filters=80, kernel_size=3, strides=1, padding='valid')(layer3)
     layer4 = BatchNormalization()(layer4)
     layer4 = LeakyReLU(alpha=0.3)(layer4)
     layer5 = Flatten()(layer4)

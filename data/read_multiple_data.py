@@ -15,7 +15,7 @@ y_resolition = 2
 lons = np.arange(east_border,360 - west_border + 0.5,x_resolution)
 lats = np.arange(south_border,north_border + 0.5,2)
 
-num = 4793
+num = 1286
 file_num = "%05d" % num
 predict_file = "predict_data_" + file_num + ".dat"
 
