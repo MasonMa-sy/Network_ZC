@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     # To save the model and logs
     model.save('..\..\model\\' + model_name + '.h5')
-    with open(file_helper.find_logs('dense_model_train'), 'w') as f:
+    with open(file_helper.find_logs(model_name+'_train'), 'w') as f:
         f.write(str(train_hist.history))
 
     # To predict the result

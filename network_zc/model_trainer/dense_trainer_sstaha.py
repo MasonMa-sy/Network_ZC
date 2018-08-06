@@ -15,10 +15,10 @@ import numpy as np
 from network_zc.tools import file_helper
 
 # some initial parameter
-training_num = 4800
+training_num = 2990
 testing_num = 0
 model_name = 'dense_model_sstaha'
-epochs = 300
+epochs = 100
 batch_size = 128
 
 
@@ -61,24 +61,26 @@ if __name__ == '__main__':
 
     model = Model(inputs=inputs, outputs=predictions)
     # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-    adam = optimizers.Adam(lr=0.0005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+    adam = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
     model.compile(optimizer=adam, loss=mean_squared_error, metrics=[mean_squared_error, root_mean_squared_error,
                                                                     mean_absolute_error])
     # to train model
     training_data, testing_data = file_helper.load_sstha_for_conv2d(training_num, testing_num)
     data_x = np.reshape(training_data[:-1], (training_num, 1080))
+    # to remove decay in ssta and ha
+    data_x = file_helper.for_decay_trainingdata(data_x)
     data_y = np.reshape(training_data[1:, :, :, 0], (training_num, 540))
     # shuffle the data for valid
-    # permutation = np.random.permutation(data_x.shape[0])
-    # shuffled_x = data_x[permutation]
-    # shuffled_y = data_y[permutation]
+    permutation = np.random.permutation(data_x.shape[0])
+    shuffled_x = data_x[permutation]
+    shuffled_y = data_y[permutation]
     tesorboard = TensorBoard('..\..\model\\tensorboard\\' + model_name)
-    train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
+    train_hist = model.fit(shuffled_x, shuffled_y, batch_size=batch_size, epochs=epochs, verbose=2,
                            callbacks=[tesorboard], validation_split=0.1)
 
     # To save the model and logs
     model.save('..\..\model\\' + model_name + '.h5')
-    with open(file_helper.find_logs('dense_model_train'), 'w') as f:
+    with open(file_helper.find_logs(model_name+'_train'), 'w') as f:
         f.write(str(train_hist.history))
 
     # To predict the result

@@ -5,7 +5,7 @@ This script is done for load SST data from .dat.
 # Third-party libraries
 import numpy as np
 
-data_file = 'data_1'
+data_file = 'data_same'
 
 
 def load_sst_for_dense(training_num, testing_num=0):
@@ -220,6 +220,15 @@ def write_data_conv2d(num, data):
         i += 1
         fh.write('\n')
     fh.close()
+
+
+def for_decay_trainingdata(training_data):
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file + "\decay_num.dat"
+    fh = open(filename, mode='r')
+    for line in fh:
+        training_data[int(line)] *= 10
+    fh.close()
+    return training_data
 
 
 def find_logs(filename):
