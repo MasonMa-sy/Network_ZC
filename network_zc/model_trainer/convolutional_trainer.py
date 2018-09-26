@@ -15,10 +15,10 @@ import numpy as np
 from network_zc.tools import file_helper
 
 # some initial parameter
-training_num = 4800
+training_num = 2990
 testing_num = 0
 model_name = 'convolution_model'
-epochs = 300
+epochs = 100
 batch_size = 64
 
 
@@ -70,6 +70,8 @@ if __name__ == '__main__':
     # the data for training is ssta and ha
     training_data, testing_data = file_helper.load_sstha_for_conv2d(training_num, testing_num)
     data_x = training_data[0:-1]
+    # to remove decay in ssta and ha
+    data_x = file_helper.for_decay_trainingdata(data_x)
     data_y = np.reshape(training_data[1:, :, :, 0], (training_num, 20, 27, 1))
     # shuffle the data for valid
     permutation = np.random.permutation(data_x.shape[0])

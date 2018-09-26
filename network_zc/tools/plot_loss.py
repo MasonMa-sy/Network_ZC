@@ -7,7 +7,7 @@ import json
 # My libraries
 from network_zc.tools import file_helper
 if __name__ == '__main__':
-    with open(file_helper.find_logs('dense_model_train'), 'r') as file:
+    with open(file_helper.find_logs('dense_model_sstaha_2_train'), 'r') as file:
         data = file.read()
         history = json.loads(data.replace("'", '"'))
         # first subplot

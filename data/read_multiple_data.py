@@ -15,17 +15,17 @@ y_resolition = 2
 lons = np.arange(east_border,360 - west_border + 0.5,x_resolution)
 lats = np.arange(south_border,north_border + 0.5,2)
 
-num = 1286
+num = 2991
 file_num = "%05d" % num
 predict_file = "predict_data_" + file_num + ".dat"
 
 file_num = "%05d" % num
-model_file = "D:\msy\projects\zc\zcdata\data\data_" + file_num + ".dat"
-file_num = "%05d" % (num + 1)
-model_file2 = "D:\msy\projects\zc\zcdata\data\data_" + file_num + ".dat"
+model_file = "D:\msy\projects\zc\zcdata\data_same_random\data_in_" + file_num + ".dat"
+file_num = "%05d" % (num)
+model_file2 = "D:\msy\projects\zc\zcdata\data_same_random\data_out_" + file_num + ".dat"
 
 # v代表色标的范围
-v = np.linspace(-1.0, 1.0, 21, endpoint=True)
+v = np.linspace(-0.4, 0.4, 21, endpoint=True)
 
 #first fig
 fh = open(model_file, mode='r')
@@ -73,6 +73,8 @@ xi, yi = m(lon, lat)
 # 这里我的tlml数据是24小时的，我这里只绘制第1小时的（tlml_0）
 # tlml_0 = tlml[0:1:, ::, ::]
 
+#cs = m.contourf(xi, yi, np.squeeze(sst))
+#bs = m.contourf(xi, yi, np.squeeze(sst))
 cs = m.contourf(xi, yi, np.squeeze(sst), v)
 bs = m.contourf(xi, yi, np.squeeze(sst), v)
 #cs = m.pcolor(xi, yi, np.squeeze(sst))s
@@ -89,6 +91,7 @@ m.drawcountries()
 
 # Add Colorbar
 cbar = m.colorbar(cs, location='bottom', pad="10%", ticks=v)
+#cbar = m.colorbar(cs, location='bottom', pad="10%")
 cbar.set_label(sst_units)
 
 # sencond fig
@@ -120,6 +123,8 @@ xi, yi = m(lon, lat)
 # 这里我的tlml数据是24小时的，我这里只绘制第1小时的（tlml_0）
 # tlml_0 = tlml[0:1:, ::, ::]
 
+#cs = m.contourf(xi, yi, np.squeeze(sst))
+#bs = m.contourf(xi, yi, np.squeeze(sst))
 cs = m.contourf(xi, yi, np.squeeze(sst), v)
 bs = m.contourf(xi, yi, np.squeeze(sst), v)
 #cs = m.pcolor(xi, yi, np.squeeze(sst))s
@@ -136,6 +141,7 @@ m.drawcountries()
 
 # Add Colorbar
 cbar = m.colorbar(cs, location='bottom', pad="10%", ticks=v)
+#cbar = m.colorbar(cs, location='bottom', pad="10%")
 cbar.set_label(sst_units)
 
 # third fig
@@ -167,6 +173,8 @@ xi, yi = m(lon, lat)
 # 这里我的tlml数据是24小时的，我这里只绘制第1小时的（tlml_0）
 # tlml_0 = tlml[0:1:, ::, ::]
 
+#cs = m.contourf(xi, yi, np.squeeze(sst))
+#bs = m.contourf(xi, yi, np.squeeze(sst))
 cs = m.contourf(xi, yi, np.squeeze(sst), v)
 bs = m.contourf(xi, yi, np.squeeze(sst), v)
 #cs = m.pcolor(xi, yi, np.squeeze(sst))s
@@ -183,6 +191,7 @@ m.drawcountries()
 
 # Add Colorbar
 cbar = m.colorbar(cs, location='bottom', pad="10%", ticks=v)
+#cbar = m.colorbar(cs, location='bottom', pad="10%")
 cbar.set_label(sst_units)
 # Add Title
 plt.show()

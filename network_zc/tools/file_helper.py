@@ -5,7 +5,7 @@ This script is done for load SST data from .dat.
 # Third-party libraries
 import numpy as np
 
-data_file = 'data_same'
+data_file = 'data_same_random'
 
 
 def load_sst_for_dense(training_num, testing_num=0):
@@ -95,6 +95,60 @@ def load_sstha_for_conv2d(training_num, testing_num=0):
             testing_data[num] = read_data(num)
             num += 1
     return training_data, testing_data
+
+
+def load_sstha_for_conv2d_separate(training_num):
+    """
+    Return [training_num, 20, 27, 2],[training_num, 20, 27, 2] traing and testing
+        data of ssta and ha for conv2d model.
+    The data form 0 to train_num is training data.If validation_num
+    TODO for Notes
+    :param training_num:
+    :return:
+    """
+    training_data = np.empty([training_num, 20, 27, 2])
+    testing_data = np.empty([training_num, 20, 27, 2])
+    num = 0
+    while num < training_num:
+        training_data[num] = read_data_sstaha_separate(num, 1)
+        testing_data[num] = read_data_sstaha_separate(num, 2)
+        num += 1
+    return training_data, testing_data
+
+
+def read_data_sstaha_separate(num, type_num):
+    """
+    Read ssta and ha data of NO.num
+    :param type_num: 1 for training, 2 for testing.
+    :param num: the NO. of file name
+    :return: One-dimensional array,length 540
+    """
+    file_num = "%05d" % num
+    if type_num == 1:
+        filename = "D:\msy\projects\zc\zcdata\\"+data_file+"\data_in_" + file_num + ".dat"
+    if type_num == 2:
+        filename = "D:\msy\projects\zc\zcdata\\" + data_file + "\data_out_" + file_num + ".dat"
+    fh = open(filename, mode='r')
+    list_temp = []
+    for line in fh:
+        list_temp.append(line)
+    fh.close()
+    count = 0
+    sst = []
+    while count < 55:
+        if count < 5 or (24 < count < 35):
+            count = count + 1
+            continue
+        list_temp2 = list(map(float, list_temp[count].split()))
+        count = count + 1
+        sst.extend(list_temp2[5:32])
+    data = np.array(sst)
+    ssta = data[:540]
+    ha = data[540:]
+    training_data = np.empty([20, 27, 2])
+    training_data[:, :, 0] = np.reshape(ssta, (20, 27))
+    training_data[:, :, 1] = np.reshape(ha, (20, 27))
+    return training_data
 
 
 def read_data_sstaha(num):
