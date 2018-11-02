@@ -4,3 +4,6 @@ There is a very serious problem of overfitting.
 
 2018/9/26<br>
 The overfitting may be solved. This problem may be related to different historical field.
+
+2018/11/2<br>
+Run ZC model freely. The results also look good.
