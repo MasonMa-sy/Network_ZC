@@ -1,0 +1,13 @@
+dgeneratedate 在ZC模式主程序中调用，用于直接生成bfmodel（）中间的数据
+
+zcdataA_for_1000 生成1000个样本，然后手动继续生成1000个，样本间隔为1，持续读取历史数据
+zcdataA_for_continuity 自动连续生成样本，每1000个是一个循环
+zcdataA_for_everyyear 样本的间隔为12
+
+zcdataA_for_same 起始月份固定，迭代生成样本
+zcdataA_for_same_random 起始月份固定，每次随机生成样本，样本间隔为1，训练测试分离
+zcdataA_for_same_random2 起始月份固定，每次随机生成样本，样本间隔为9，训练测试分离
+zcdataA_for_single 单独将CNOP类型扰动作为输入，生成一个样本，样本间隔为9
+zcdataA_for_12month 样本间隔为1，先随机生成一个样本，作为一月的输入，然后迭代生成剩余11个月的输入，一共12个月，13个文件作为一个循环。每次都是读取历史数据的。训练测试不分离。
+zcdataA_for_12month 样本间隔为1，先随机生成一个样本，作为一月的输入，然后直接生成剩余11个月的输入，一共12个月，13个文件作为一个循环。每次都是读取历史数据的。训练测试不分离。
+zcdataA_for_freely 样本间隔为1，初始距平设0，用0.44风强迫场，4个月后取消，继续积分1005年

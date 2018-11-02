@@ -15,14 +15,14 @@ y_resolition = 2
 lons = np.arange(east_border,360 - west_border + 0.5,x_resolution)
 lats = np.arange(south_border,north_border + 0.5,2)
 
-num = 2991
+num = 0
 file_num = "%05d" % num
 predict_file = "predict_data_" + file_num + ".dat"
 
 file_num = "%05d" % num
-model_file = "D:\msy\projects\zc\zcdata\data_same_random\data_in_" + file_num + ".dat"
+model_file = "D:\msy\projects\zc\zcdata\data_test\data_in_" + file_num + ".dat"
 file_num = "%05d" % (num)
-model_file2 = "D:\msy\projects\zc\zcdata\data_same_random\data_out_" + file_num + ".dat"
+model_file2 = "D:\msy\projects\zc\zcdata\data_test\data_out_" + file_num + ".dat"
 
 # v代表色标的范围
 v = np.linspace(-0.4, 0.4, 21, endpoint=True)

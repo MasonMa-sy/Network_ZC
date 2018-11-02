@@ -19,7 +19,7 @@
 
       integer i,j,k,ipertur,jpertur,i1,i2,irec,for_circle
 
-      real*8 tinitial,tfinal, file_num
+      real*8 tinitial,tfinal, file_num, rand_temp
       real*8 normtobasis_init,normtocnop,normtocnop_tlm,normtocnop_nlm
       real*8 normh1basis_init,normh1cnop,normh1cnop_tlm,normh1cnop_nlm
       real*8 normxbasis_init,normxcnop,normxcnop_tlm,normxcnop_nlm
@@ -43,8 +43,12 @@
       common /r8/toinit,h1init,toend,h1end
       common /r9/tinitial,tfinal
       common /r10/ipertur,jpertur
+      common /generate/file_num
 
 c---for test mean sst
+      REAL*8 H1(30,34),U1(30,34),V1(30,34)
+      COMMON/ZDAT2/H1,U1,V1
+
       REAL*8 Q0O(30,34),UO(30,34),VO(30,34),DO(30,34),HTAU(34,30,2),
      B TO(30,34),US(30,34),VS(30,34),
      C WP(30,34),DT1(30,34,7),TT(30,34),UV1(30,34),UV2(30,34),
@@ -57,60 +61,52 @@ c---for test mean sst
      A US,VS,WP,DT1,TT,UV1,UV2,WM1,UAT,VAT,DIVT
 c---end
 
-c     tinitial=60.5
-c     tfinal=tinitial+12.0d0
+
+      tinitial=0.5d0
+      tfinal=tinitial+12060.0d0
       call initialbasic(toinit,h1init)
-c      call CPU_TIME(timeBegin)
-      call bfmodel(toinit,h1init,toend,h1end)
-c      call CPU_TIME(timeMid)
+c      call bfmodel(toinit,h1init,toend,h1end)
       file_num=0
-      do for_circle = 1, 60, 1
+      
+      write(filename,'(i5.5)') int(file_num)
+      open(unit=374,file='data/data_'//filename//'.dat',
+     & form='binary',status='replace')
+      do i=6,25
+      do j=6,32
+      Write(374) TO(i,j)
+      enddo
+      enddo
+      do i=6,25
+      do j=6,32
+      Write(374) H1(i,j)
+      enddo
+      enddo
+      close(374)
+
+c      tfinal=tinitial+12.0d0
+      file_num=file_num+1                
+        
+      call bfmodel(toinit,h1init,ssta_end,h1a_end)
 
       write(filename,'(i5.5)') int(file_num)
-      open(unit=376,file='data/data_'//filename//'.dat',
-     & form='formatted',status='old',action='read')
-      read(376,200)(ssta(i,:),i=1,30)
-      read(376,200)(h1a(i,:),i=1,30)
-      close(376)
-
-200     format(34(1x,f12.5))
-
-c---suppose 72.5 is January
-	    do tinitial=72.5,1032.5,12.0d0
-        tfinal=tinitial+12.0d0
-        file_num=file_num+1
-        write(filename,'(i5.5)') int(file_num)
-c        print *,'###',filename,'%%%',tinitial
       open(unit=374,file='data/data_'//filename//'.dat',
-     & form='formatted',status='replace')        
-c        open(unit=375,file='1toh1end.dat',
-c       & form='formatted',status='replace')    
-        
-        
-        
-        call bfmodel(ssta,h1a,ssta_end,h1a_end)
+     & form='binary',status='replace')  
 
-        write(374,200)(ssta(i,:),i=1,30)
-        write(374,200)(h1a(i,:),i=1,30)
-c        write(375,200)(toend(i,:),i=1,30)
-c        write(375,200)(h1end(i,:),i=1,30)
-        close(374)
-c        close(375)
-        ssta = ssta_end
-        h1a = h1a_end
-        print *,file_num,' has been done.'
-      end do
-      print *,'The ',for_circle,' has been done.'
-      end do
+      do i=6,25
+      do j=6,32
+      Write(374) TO(i,j)
+      enddo
+      enddo
+      do i=6,25
+      do j=6,32
+      Write(374) H1(i,j)
+      enddo
+      enddo
+      close(374)
+c      print *,file_num,' has been done.'      
+c      print *,'The ',for_circle,' has been done.'
 c---test msst
-c      write(374,200)(TT(i,:),i=1,30)
-c      tinitial=tfinal
-c      tfinal=tinitial+1
-c      call initialbasic(toinit,h1init)
-c      call bfmodel(toinit,h1init,toend,h1end)
-c      call CPU_TIME(timeEnd)
-c      write(375,200)(TT(i,:),i=1,30)
-c      print *,'Time ',timeEnd,'#',timeMid,'#',timeBegin,' (s)'
+c---integral ZC for nature.
 c---end 
       
       end
