@@ -1,13 +1,14 @@
 """
 This script is done for load SST data from .dat.
-The data is formatted.
+The data is binary.
 """
 
 # Third-party libraries
 import numpy as np
+import struct
 
-data_file = 'data_same_random_12month'
-data_name = '\data_month'
+data_file = 'data_nature'
+data_name = '\data_'
 data_file_statistics = '..\..\data\predict_data_'
 
 
@@ -76,19 +77,20 @@ def read_data(num):
     return np.array(sst)
 
 
-def load_sstha_for_conv2d(training_num, testing_num=0):
+def load_sstha_for_conv2d(training_start, training_num, testing_num=0):
     """
     Return [training_num+1, 20, 27, 2] data of ssta and ha for conv2d model.
-    The data form 0 to train_num is training data.If validation_num
+    The data form training_start to train_num is training data.If validation_num
     TODO for Notes
+    :param training_start:
     :param training_num:
     :param testing_num:
     :return:
     """
-    training_data = np.empty([training_num+1, 20, 27, 2])
-    num = 0
+    training_data = np.empty([training_num+1-training_start, 20, 27, 2])
+    num = training_start
     while num <= training_num:
-        training_data[num] = read_data_sstaha(num)
+        training_data[num-training_start] = read_data_sstaha(num)
         num += 1
     testing_data = np.empty(1)
     if testing_num != 0:
@@ -162,26 +164,19 @@ def read_data_sstaha(num):
     """
     file_num = "%05d" % num
     filename = "D:\msy\projects\zc\zcdata\\"+data_file+ data_name + file_num + ".dat"
-    fh = open(filename, mode='r')
-    list_temp = []
-    for line in fh:
-        list_temp.append(line)
-    fh.close()
-    count = 0
-    sst = []
-    while count < 55:
-        if count < 5 or (24 < count < 35):
-            count = count + 1
-            continue
-        list_temp2 = list(map(float, list_temp[count].split()))
-        count = count + 1
-        sst.extend(list_temp2[5:32])
-    data = np.array(sst)
-    ssta = data[:540]
-    ha = data[540:]
+    fh = open(filename, mode='rb')
     training_data = np.empty([20, 27, 2])
-    training_data[:, :, 0] = np.reshape(ssta, (20, 27))
-    training_data[:, :, 1] = np.reshape(ha, (20, 27))
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            training_data[i][j][0] = text
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            training_data[i][j][1] = text
+    fh.close()
     return training_data
 
 

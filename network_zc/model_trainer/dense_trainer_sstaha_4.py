@@ -1,7 +1,7 @@
 """
 For the first test to train neural networks for zc model using dense layers.
-This version the training data and testing data are separated.
-Input is random ssta and h1a, for same initial month,integrate for 1 or 9 month.
+This version the training data and testing data are together(not separated).
+The whole data is run ZC model freely for 1005 years.
 """
 # Third-party libraries
 from keras.layers import Input, Dense, Dropout, LeakyReLU
@@ -14,12 +14,13 @@ import keras.backend as K
 import numpy as np
 
 # My libraries
-from network_zc.tools import file_helper
+from network_zc.tools import file_helper_unformatted
 
 # some initial parameter
-training_num = 3000
+training_start = 60
+training_num = 12060
 testing_num = 0
-model_name = 'dense_model_sstaha_2'
+model_name = 'dense_model_sstaha_4'
 epochs = 100
 batch_size = 128
 
@@ -67,21 +68,17 @@ if __name__ == '__main__':
     model.compile(optimizer=adam, loss=mean_squared_error, metrics=[mean_squared_error, root_mean_squared_error,
                                                                     mean_absolute_error])
     # to train model
-    training_data, testing_data = file_helper.load_sstha_for_conv2d_separate(training_num)
-    data_x = np.reshape(training_data[:], (training_num, 1080))
+    training_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, training_num)
+    data_x = np.reshape(training_data[:-1], (training_num-training_start, 1080))
     # to remove decay in ssta and ha
-    data_y = np.reshape(testing_data[:, :, :, 0], (training_num, 540))
-    # shuffle the data for valid
-    #permutation = np.random.permutation(data_x.shape[0])
-    #shuffled_x = data_x[permutation]
-    #shuffled_y = data_y[permutation]
+    data_y = np.reshape(training_data[1:, :, :, 0], (training_num-training_start, 540))
     tesorboard = TensorBoard('..\..\model\\tensorboard\\' + model_name)
     train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
                            callbacks=[tesorboard], validation_split=0.1)
 
     # To save the model and logs
     model.save('..\..\model\\' + model_name + '.h5')
-    with open(file_helper.find_logs(model_name+'_train'), 'w') as f:
+    with open(file_helper_unformatted.find_logs(model_name+'_train'), 'w') as f:
         f.write(str(train_hist.history))
 
     # To predict the result

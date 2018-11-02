@@ -39,7 +39,7 @@ model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squa
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 789
+file_num = 0
 
 # for dense_model
 # predict_data = np.empty([1, 540])

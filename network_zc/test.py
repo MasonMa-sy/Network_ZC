@@ -17,5 +17,20 @@ from network_zc.tools import file_helper
 # b = np.empty([27, 20, 2])
 # b[:, :, 0] = a
 # print(b)
-test_data = file_helper.read_data_sstaha(0)
-print(test_data)
+# test = [x for x in range(0, 130)]
+# i = 0
+# del test[0]
+# length = 130-1
+# while i<length:
+#     for j in range(12):
+#         i=i+1
+#     if i<length:
+#         del test[i]
+#         length=length-1
+# print(test)
+a = np.linspace(1,27,27)
+a = a.reshape((3,3,3))
+print(a)
+print(np.mean(a,axis=0))
+
+
