@@ -9,11 +9,13 @@ import numpy as np
 from keras.models import load_model
 # My libraries
 from network_zc.tools import file_helper_unformatted
+from network_zc.tools import index_calculation
 from network_zc.model_trainer import dense_trainer
 from network_zc.model_trainer import dense_trainer_sstaha
 from network_zc.model_trainer import dense_trainer_sstaha_4
 from network_zc.model_trainer import convolutional_trainer_alex
 import keras.backend as K
+import matplotlib.pyplot as plt
 
 
 def root_mean_squared_error(y_true, y_pred):
@@ -39,8 +41,8 @@ model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squa
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 0
-month = 9
+file_num = 210
+month = 100
 # for dense_model
 # predict_data = np.empty([1, 540])
 # predict_data[0] = file_helper.read_data(file_num)
@@ -48,13 +50,33 @@ month = 9
 
 # for dense_model ssta and ha
 predict_data = np.empty([1, 20, 27, 2])
+data_y = np.empty([1, 20, 27, 2])
 data_x = np.empty([1, 1080])
 predict_data[0] = file_helper_unformatted.read_data_sstaha(file_num)
+
+nino34 = [index_calculation.get_nino34(predict_data[0])]
+
+data_mean, data_std = file_helper_unformatted.read_preprocessing_data()
+predict_data[0] = (predict_data[0]-data_mean)/data_std
 data_x[0] = np.reshape(predict_data[0], (1, 1080))
+
+
 for i in range(month):
     data_x = model.predict(data_x)
-file_helper_unformatted.write_data(file_num, data_x[0])
-#file_helper_unformatted.write_data(file_num, model.predict(data_x)[0])
+
+    data_y[0] = np.reshape(data_x[0], (20, 27, 2))
+    data_y[0] = data_y[0]*data_std+data_mean
+    # calculate nino 3.4 index
+    nino34.append(index_calculation.get_nino34(data_y[0]))
+    # write data to file
+    # file_helper_unformatted.write_data(file_num, data_y[0])
+    # file_num = file_num + 1
+
+plt.plot(nino34)
+plt.show()
+
+
+# file_helper_unformatted.write_data(file_num, model.predict(data_x)[0])
 
 # for convolutional model only ssta
 # predict_data = np.empty([1, 540])

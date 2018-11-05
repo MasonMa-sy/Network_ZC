@@ -28,9 +28,9 @@ from network_zc.tools import file_helper
 #         del test[i]
 #         length=length-1
 # print(test)
-a = np.linspace(1,27,27)
-a = a.reshape((3,3,3))
-print(a)
-print(np.mean(a,axis=0))
+a = np.array([[10, 20, 30], [40, 50, 60]])
+b = np.array([[3],[4]])
+print(a-b)
+
 
 

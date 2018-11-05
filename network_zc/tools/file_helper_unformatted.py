@@ -9,7 +9,8 @@ import struct
 
 data_file = 'data_nature'
 data_name = '\data_'
-data_file_statistics = '..\..\data\predict_data_'
+data_file_statistics = '..\data\predict_data_'
+data_preprocessing_file = '\mean\\'
 
 
 def load_sst_for_dense(training_num, testing_num=0):
@@ -189,42 +190,18 @@ def write_data(num, data):
     """
     file_num = "%05d" % num
     filename = data_file_statistics + file_num + ".dat"
-    fh = open(filename, mode='w')
-    i = 0
-    while i < 5:
-        j = 0
-        while j < 34:
-            fh.write("%13.5f" % 0.0)
-            j += 1
-        i += 1
-        fh.write('\n')
-    i = 0
-    data_row = 0
-    while i < 20:
-        j = 0
-        while j < 5:
-            fh.write("%13.5f" % 0.0)
-            j += 1
-        data_i = 0
-        while data_i < 27:
-            fh.write("%13.5f" % float(data[data_row * 27 + data_i]))
-            data_i += 1
-        data_row += 1
-        j = 0
-        while j < 2:
-            fh.write("%13.5f" % 0.0)
-            j += 1
-        fh.write('\n')
-        i += 1
-    i = 0
-    while i < 5:
-        j = 0
-        while j < 34:
-            fh.write("%13.5f" % 0.0)
-            j += 1
-        i += 1
-        fh.write('\n')
-    fh.close()
+    data = np.reshape(data, (20, 27, 2))
+    with open(filename, 'wb') as fp:
+        #    data = fp.read(4)
+        for i in range(20):
+            for j in range(27):
+                temp = struct.pack("d", data[i][j][0])
+                fp.write(temp)
+        for i in range(20):
+            for j in range(27):
+                temp = struct.pack("d", data[i][j][1])
+                fp.write(temp)
+    fp.close()
 
 
 def write_data_conv2d(num, data):
@@ -286,3 +263,50 @@ def for_decay_trainingdata(training_data):
 def find_logs(filename):
     file = '..\..\model\logs\\' + filename
     return file
+
+
+def read_preprocessing_data():
+    """
+
+    :return: mean data and std data for data preprocessing.
+    """
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_preprocessing_file + "mean.dat"
+    fh = open(filename, mode='rb')
+    data_mean = np.empty([20, 27, 2])
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            data_mean[i][j][0] = text
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            data_mean[i][j][1] = text
+    fh.close()
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_preprocessing_file + "std.dat"
+    fh = open(filename, mode='rb')
+    data_std = np.empty([20, 27, 2])
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            data_std[i][j][0] = text
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            data_std[i][j][1] = text
+    fh.close()
+    return data_mean, data_std
+
+
+def preprocess(training_data):
+    """
+    for Z-score normalization
+    :param training_data:
+    :return:
+    """
+    data_mean, data_std = read_preprocessing_data()
+    training_data = (training_data - data_mean)/data_std
+    return training_data

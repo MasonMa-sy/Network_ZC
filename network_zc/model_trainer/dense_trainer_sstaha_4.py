@@ -60,7 +60,7 @@ if __name__ == '__main__':
     x = BatchNormalization()(x)
     x = LeakyReLU(alpha=0.3)(x)
     x = Dropout(0.2)(x)
-    predictions = Dense(540, activation='linear')(x)
+    predictions = Dense(1080, activation='linear')(x)
 
     model = Model(inputs=inputs, outputs=predictions)
     # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
@@ -69,9 +69,12 @@ if __name__ == '__main__':
                                                                     mean_absolute_error])
     # to train model
     training_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, training_num)
+
+    # Data preprocessing
+    training_data = file_helper_unformatted.preprocess(training_data)
+
     data_x = np.reshape(training_data[:-1], (training_num-training_start, 1080))
-    # to remove decay in ssta and ha
-    data_y = np.reshape(training_data[1:, :, :, 0], (training_num-training_start, 540))
+    data_y = np.reshape(training_data[1:], (training_num-training_start, 1080))
     tesorboard = TensorBoard('..\..\model\\tensorboard\\' + model_name)
     train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
                            callbacks=[tesorboard], validation_split=0.1)
