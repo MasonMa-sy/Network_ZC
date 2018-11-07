@@ -56,22 +56,34 @@ predict_data[0] = file_helper_unformatted.read_data_sstaha(file_num)
 
 nino34 = [index_calculation.get_nino34(predict_data[0])]
 
-data_mean, data_std = file_helper_unformatted.read_preprocessing_data()
-predict_data[0] = (predict_data[0]-data_mean)/data_std
+# data_mean, data_std = file_helper_unformatted.read_preprocessing_data()
+# predict_data[0] = (predict_data[0]-data_mean)/data_std
+predict_data[0] = file_helper_unformatted.dimensionless(predict_data[0], 0)
 data_x[0] = np.reshape(predict_data[0], (1, 1080))
 
-
+data_temp = np.empty([2, 20, 27, 2])
+nino34_temp = np.empty([2])
 for i in range(month):
     data_x = model.predict(data_x)
 
     data_y[0] = np.reshape(data_x[0], (20, 27, 2))
-    data_y[0] = data_y[0]*data_std+data_mean
+    data_y[0] = file_helper_unformatted.dimensionless(data_y[0], 1)
+    # data_y[0] = data_y[0]*data_std+data_mean
     # calculate nino 3.4 index
-    nino34.append(index_calculation.get_nino34(data_y[0]))
+    nino34_temp1 = index_calculation.get_nino34(data_y[0])
+    nino34.append(nino34_temp1)
+    # write data for maximum value of nino34
+    if i > 1 and nino34_temp[1] > nino34_temp[0] and nino34_temp[1] > nino34_temp1:
+        file_helper_unformatted.write_data(file_num+i, data_temp[1])
+        print(file_num+i)
+    data_temp[0] = data_temp[1]
+    data_temp[1] = data_y[0]
+    nino34_temp[0] = nino34_temp[1]
+    nino34_temp[1] = nino34_temp1
     # write data to file
     # file_helper_unformatted.write_data(file_num, data_y[0])
     # file_num = file_num + 1
-
+# file_helper_unformatted.write_data(file_num+month, data_temp[1])
 plt.plot(nino34)
 plt.show()
 

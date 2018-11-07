@@ -310,3 +310,19 @@ def preprocess(training_data):
     data_mean, data_std = read_preprocessing_data()
     training_data = (training_data - data_mean)/data_std
     return training_data
+
+
+def dimensionless(training_data, di_or_de):
+    """
+    ssta/2, h1a/50
+    :param training_data:
+    :param di_or_de:0 for /, 1 for *.
+    :return:
+    """
+    if di_or_de == 0:
+        training_data[:, :, 0] = training_data[:, :, 0]/2
+        training_data[:, :, 1] = training_data[:, :, 1]/50
+    if di_or_de == 1:
+        training_data[:, :, 0] = training_data[:, :, 0]*2
+        training_data[:, :, 1] = training_data[:, :, 1]*50
+    return training_data
