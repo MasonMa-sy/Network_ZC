@@ -41,7 +41,7 @@ model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squa
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 210
+file_num = 11140
 month = 100
 # for dense_model
 # predict_data = np.empty([1, 540])
@@ -58,7 +58,7 @@ nino34 = [index_calculation.get_nino34(predict_data[0])]
 
 # data_mean, data_std = file_helper_unformatted.read_preprocessing_data()
 # predict_data[0] = (predict_data[0]-data_mean)/data_std
-predict_data[0] = file_helper_unformatted.dimensionless(predict_data[0], 0)
+predict_data = file_helper_unformatted.dimensionless(predict_data, 0)
 data_x[0] = np.reshape(predict_data[0], (1, 1080))
 
 data_temp = np.empty([2, 20, 27, 2])
@@ -67,7 +67,7 @@ for i in range(month):
     data_x = model.predict(data_x)
 
     data_y[0] = np.reshape(data_x[0], (20, 27, 2))
-    data_y[0] = file_helper_unformatted.dimensionless(data_y[0], 1)
+    data_y = file_helper_unformatted.dimensionless(data_y, 1)
     # data_y[0] = data_y[0]*data_std+data_mean
     # calculate nino 3.4 index
     nino34_temp1 = index_calculation.get_nino34(data_y[0])

@@ -20,7 +20,7 @@ from network_zc.tools import file_helper_unformatted
 training_start = 60
 training_num = 12060
 testing_num = 0
-model_name = 'dense_model_sstaha_4_nopreprocess'
+model_name = 'dense_model_sstaha_4_dimensionless'
 epochs = 100
 batch_size = 64
 
@@ -73,6 +73,7 @@ if __name__ == '__main__':
     # Data preprocessing
     # training_data = file_helper_unformatted.preprocess(training_data)
     training_data = file_helper_unformatted.dimensionless(training_data, 0)
+
     data_x = np.reshape(training_data[:-1], (training_num-training_start, 1080))
     data_y = np.reshape(training_data[1:], (training_num-training_start, 1080))
     tesorboard = TensorBoard('..\..\model\\tensorboard\\' + model_name)

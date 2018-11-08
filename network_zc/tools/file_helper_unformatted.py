@@ -312,17 +312,31 @@ def preprocess(training_data):
     return training_data
 
 
+def preprocess2(training_data, di_or_de):
+    """
+    for 0-1 normalization
+    :param di_or_de:
+    :param training_data:
+    :return:
+    """
+    if di_or_de == 0:
+        training_data = (training_data-training_data.min())/(training_data.max()-training_data.min())
+    if di_or_de == 1:
+        training_data = training_data * (training_data.max()-training_data.min()) + training_data.min()
+    return training_data
+
+
 def dimensionless(training_data, di_or_de):
     """
     ssta/2, h1a/50
     :param training_data:
-    :param di_or_de:0 for /, 1 for *.
+    :param di_or_de:0 for many sample /, 1 for many sample *.
     :return:
     """
     if di_or_de == 0:
-        training_data[:, :, 0] = training_data[:, :, 0]/2
-        training_data[:, :, 1] = training_data[:, :, 1]/50
+        training_data[:, :, :, 0] = training_data[:, :, :, 0]/2
+        training_data[:, :, :, 1] = training_data[:, :, :, 1]/50
     if di_or_de == 1:
-        training_data[:, :, 0] = training_data[:, :, 0]*2
-        training_data[:, :, 1] = training_data[:, :, 1]*50
+        training_data[:, :, :, 0] = training_data[:, :, :, 0]*2
+        training_data[:, :, :, 1] = training_data[:, :, :, 1]*50
     return training_data

@@ -11,7 +11,7 @@ training_num = 12060
 # file_helper.write_data(0, data_mean)
 
 training_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, training_num)
-#data_y = np.reshape(training_data[:, :, :, 0], (training_num, 540))
+# data_y = np.reshape(training_data[:, :, :, 0], (training_num, 540))
 data_mean = np.mean(training_data, axis=0)
 data_std = np.std(training_data, axis=0)
 file_helper_unformatted.write_data(1, data_mean)
