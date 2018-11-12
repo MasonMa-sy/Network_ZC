@@ -1,5 +1,5 @@
 import numpy as np
-from network_zc.tools import file_helper
+from network_zc.tools import file_helper_unformatted
 
 # a = np.empty([540, 3])
 # a[:, 0] = range(1, 541)
@@ -28,10 +28,7 @@ from network_zc.tools import file_helper
 #         del test[i]
 #         length=length-1
 # print(test)
-a = np.array([[10, 20, 30], [40, 50, 60]])
-b = np.array([[3], [4]])
-
-print(a-2)
+print(np.linspace(1,1+5,5))
 
 
 

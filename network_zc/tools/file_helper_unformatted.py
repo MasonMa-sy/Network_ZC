@@ -7,7 +7,7 @@ The data is binary.
 import numpy as np
 import struct
 
-data_file = 'data_nature'
+data_file = 'data_nature2'
 data_name = '\data_'
 data_file_statistics = '..\data\predict_data_'
 data_preprocessing_file = '\mean\\'
@@ -22,7 +22,7 @@ def load_sst_for_dense(training_num, testing_num=0):
     :param testing_num:
     :return:
     """
-    training_data = np.empty([training_num+1, 540])
+    training_data = np.empty([training_num + 1, 540])
     num = 0
     while num <= training_num:
         training_data[num] = read_data(num)
@@ -47,9 +47,9 @@ def load_sst_for_conv2d(training_num, testing_num=0):
     :return:
     """
     training_data, testing_data = load_sst_for_dense(training_num, testing_num)
-    training_data = np.reshape(training_data, (training_num+1, 20, 27, 1))
+    training_data = np.reshape(training_data, (training_num + 1, 20, 27, 1))
     if testing_num != 0:
-        testing_data = np.reshape(testing_data, (training_num+1, 20, 27, 1))
+        testing_data = np.reshape(testing_data, (training_num + 1, 20, 27, 1))
     return training_data, testing_data
 
 
@@ -60,7 +60,7 @@ def read_data(num):
     :return: One-dimensional array,length 540
     """
     file_num = "%05d" % num
-    filename = "D:\msy\projects\zc\zcdata\\"+data_file+data_name + file_num + ".dat"
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_name + file_num + ".dat"
     fh = open(filename, mode='r')
     list_temp = []
     for line in fh:
@@ -88,10 +88,10 @@ def load_sstha_for_conv2d(training_start, training_num, testing_num=0):
     :param testing_num:
     :return:
     """
-    training_data = np.empty([training_num+1-training_start, 20, 27, 2])
+    training_data = np.empty([training_num + 1 - training_start, 20, 27, 2])
     num = training_start
     while num <= training_num:
-        training_data[num-training_start] = read_data_sstaha(num)
+        training_data[num - training_start] = read_data_sstaha(num)
         num += 1
     testing_data = np.empty(1)
     if testing_num != 0:
@@ -130,8 +130,9 @@ def read_data_sstaha_separate(num, type_num):
     :return: One-dimensional array,length 540
     """
     file_num = "%05d" % num
+    filename = ''
     if type_num == 1:
-        filename = "D:\msy\projects\zc\zcdata\\"+data_file+"\data_in_" + file_num + ".dat"
+        filename = "D:\msy\projects\zc\zcdata\\" + data_file + "\data_in_" + file_num + ".dat"
     if type_num == 2:
         filename = "D:\msy\projects\zc\zcdata\\" + data_file + "\data_out_" + file_num + ".dat"
     fh = open(filename, mode='r')
@@ -164,7 +165,7 @@ def read_data_sstaha(num):
     :return: One-dimensional array,length 540
     """
     file_num = "%05d" % num
-    filename = "D:\msy\projects\zc\zcdata\\"+data_file+ data_name + file_num + ".dat"
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_name + file_num + ".dat"
     fh = open(filename, mode='rb')
     training_data = np.empty([20, 27, 2])
     for i in range(20):
@@ -263,80 +264,3 @@ def for_decay_trainingdata(training_data):
 def find_logs(filename):
     file = '..\..\model\logs\\' + filename
     return file
-
-
-def read_preprocessing_data():
-    """
-
-    :return: mean data and std data for data preprocessing.
-    """
-    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_preprocessing_file + "mean.dat"
-    fh = open(filename, mode='rb')
-    data_mean = np.empty([20, 27, 2])
-    for i in range(20):
-        for j in range(27):
-            data = fh.read(8)  # type(data) === bytes
-            text = struct.unpack("d", data)[0]
-            data_mean[i][j][0] = text
-    for i in range(20):
-        for j in range(27):
-            data = fh.read(8)  # type(data) === bytes
-            text = struct.unpack("d", data)[0]
-            data_mean[i][j][1] = text
-    fh.close()
-    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_preprocessing_file + "std.dat"
-    fh = open(filename, mode='rb')
-    data_std = np.empty([20, 27, 2])
-    for i in range(20):
-        for j in range(27):
-            data = fh.read(8)  # type(data) === bytes
-            text = struct.unpack("d", data)[0]
-            data_std[i][j][0] = text
-    for i in range(20):
-        for j in range(27):
-            data = fh.read(8)  # type(data) === bytes
-            text = struct.unpack("d", data)[0]
-            data_std[i][j][1] = text
-    fh.close()
-    return data_mean, data_std
-
-
-def preprocess(training_data):
-    """
-    for Z-score normalization
-    :param training_data:
-    :return:
-    """
-    data_mean, data_std = read_preprocessing_data()
-    training_data = (training_data - data_mean)/data_std
-    return training_data
-
-
-def preprocess2(training_data, di_or_de):
-    """
-    for 0-1 normalization
-    :param di_or_de:
-    :param training_data:
-    :return:
-    """
-    if di_or_de == 0:
-        training_data = (training_data-training_data.min())/(training_data.max()-training_data.min())
-    if di_or_de == 1:
-        training_data = training_data * (training_data.max()-training_data.min()) + training_data.min()
-    return training_data
-
-
-def dimensionless(training_data, di_or_de):
-    """
-    ssta/2, h1a/50
-    :param training_data:
-    :param di_or_de:0 for many sample /, 1 for many sample *.
-    :return:
-    """
-    if di_or_de == 0:
-        training_data[:, :, :, 0] = training_data[:, :, :, 0]/2
-        training_data[:, :, :, 1] = training_data[:, :, :, 1]/50
-    if di_or_de == 1:
-        training_data[:, :, :, 0] = training_data[:, :, :, 0]*2
-        training_data[:, :, :, 1] = training_data[:, :, :, 1]*50
-    return training_data

@@ -14,13 +14,13 @@ import keras.backend as K
 import numpy as np
 
 # My libraries
-from network_zc.tools import file_helper_unformatted
+from network_zc.tools import file_helper_unformatted,data_preprocess
 
 # some initial parameter
 training_start = 60
 training_num = 12060
 testing_num = 0
-model_name = 'dense_model_sstaha_4_dimensionless'
+model_name = 'dense_model_sstaha_4_dimensionless2'
 epochs = 100
 batch_size = 64
 
@@ -72,7 +72,8 @@ if __name__ == '__main__':
 
     # Data preprocessing
     # training_data = file_helper_unformatted.preprocess(training_data)
-    training_data = file_helper_unformatted.dimensionless(training_data, 0)
+    training_data = data_preprocess.dimensionless(training_data, 0)
+    # training_data = file_helper_unformatted.preprocess2(training_data, 0)
 
     data_x = np.reshape(training_data[:-1], (training_num-training_start, 1080))
     data_y = np.reshape(training_data[1:], (training_num-training_start, 1080))

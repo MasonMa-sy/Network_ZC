@@ -1,6 +1,9 @@
+# Third-party libraries
 import numpy as np
 import struct
 import matplotlib.pyplot as plt
+# My libraries
+from network_zc.tools import file_helper_unformatted
 
 
 def get_nino34(data_2D):
@@ -9,6 +12,14 @@ def get_nino34(data_2D):
         for j in range(11, 20):
             nino3_temp += data_2D[i][j][0]
     return nino3_temp/54
+
+
+def get_nino34_from_data(file_num, month):
+    nino3 = []
+    for i in range(file_num, file_num+month+1):
+        data = file_helper_unformatted.read_data_sstaha(i)
+        nino3.append(get_nino34(data))
+    return nino3
 
 
 def plot_nino34():
@@ -34,7 +45,7 @@ def plot_nino34():
                 nino3_temp += sst[i][j]
                 sumi = sumi + 1
         nino3.append(nino3_temp / sumi)
-    print(sumi)
+        # print(sumi)
     plt.plot(nino3)
     plt.show()
 
