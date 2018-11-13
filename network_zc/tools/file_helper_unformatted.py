@@ -6,11 +6,13 @@ The data is binary.
 # Third-party libraries
 import numpy as np
 import struct
+# My libraries
+from network_zc.tools import name_list
 
-data_file = 'data_nature2'
-data_name = '\data_'
-data_file_statistics = '..\data\predict_data_'
-data_preprocessing_file = '\mean\\'
+data_file = name_list.data_file
+data_name = name_list.data_name
+data_file_statistics = name_list.data_file_statistics
+data_preprocessing_file = name_list.data_preprocessing_file
 
 
 def load_sst_for_dense(training_num, testing_num=0):
@@ -85,7 +87,7 @@ def load_sstha_for_conv2d(training_start, training_num, testing_num=0):
     TODO for Notes
     :param training_start:
     :param training_num:
-    :param testing_num:
+    :param testing_num:now this is not used
     :return:
     """
     training_data = np.empty([training_num + 1 - training_start, 20, 27, 2])

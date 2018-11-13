@@ -14,13 +14,16 @@ import keras.backend as K
 import numpy as np
 
 # My libraries
-from network_zc.tools import file_helper_unformatted,data_preprocess
+from network_zc.tools import file_helper_unformatted, data_preprocess, name_list
+
+# some model name set
+model_name = name_list.model_name
+data_preprocess_method = name_list.data_preprocess_method
 
 # some initial parameter
 training_start = 60
 training_num = 12060
 testing_num = 0
-model_name = 'dense_model_sstaha_4_dimensionless2'
 epochs = 100
 batch_size = 64
 
@@ -70,10 +73,18 @@ if __name__ == '__main__':
     # to train model
     training_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, training_num)
 
-    # Data preprocessing
-    # training_data = file_helper_unformatted.preprocess(training_data)
-    training_data = data_preprocess.dimensionless(training_data, 0)
-    # training_data = file_helper_unformatted.preprocess2(training_data, 0)
+    # data preprocess z-zero
+    if data_preprocess_method == 'preprocess_Z':
+        training_data = data_preprocess.preprocess_Z(training_data, 0)
+    # data preprocess dimensionless
+    if data_preprocess_method == 'dimensionless':
+        training_data = data_preprocess.dimensionless(training_data, 0)
+    # data preprocess 0-1
+    if data_preprocess_method == 'preprocess_01':
+        training_data = data_preprocess.preprocess_01(training_data, 0)
+    # data preprocess no month mean
+    if data_preprocess_method == 'nomonthmean':
+        training_data = data_preprocess.no_month_mean(training_data, 0)
 
     data_x = np.reshape(training_data[:-1], (training_num-training_start, 1080))
     data_y = np.reshape(training_data[1:], (training_num-training_start, 1080))

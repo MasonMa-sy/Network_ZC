@@ -1,5 +1,5 @@
 import numpy as np
-from network_zc.tools import file_helper_unformatted
+from network_zc.tools import file_helper_unformatted, data_preprocess
 
 # a = np.empty([540, 3])
 # a[:, 0] = range(1, 541)
@@ -28,7 +28,11 @@ from network_zc.tools import file_helper_unformatted
 #         del test[i]
 #         length=length-1
 # print(test)
-print(np.linspace(1,1+5,5))
+a=np.array([[1,2,3],[4,5,6]])
+b=a.copy()
+b[1][1]=10
+str = '123'
+print(str == '1234')
 
 
 

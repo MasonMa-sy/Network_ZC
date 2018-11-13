@@ -13,6 +13,7 @@ data_name = file_helper_unformatted.data_name
 data_file_statistics = file_helper_unformatted.data_file_statistics
 data_preprocessing_file = file_helper_unformatted.data_preprocessing_file
 
+
 def read_preprocessing_data():
     """
 
@@ -49,18 +50,22 @@ def read_preprocessing_data():
     return data_mean, data_std
 
 
-def preprocess(training_data):
+def preprocess_Z(training_data, di_or_de):
     """
     for Z-score normalization
+    :param di_or_de:
     :param training_data:
     :return:
     """
     data_mean, data_std = read_preprocessing_data()
-    training_data = (training_data - data_mean) / data_std
+    if di_or_de == 0:
+        training_data = (training_data - data_mean) / data_std
+    if di_or_de == 1:
+        training_data = training_data*data_std + data_mean
     return training_data
 
 
-def preprocess2_for_train(training_data):
+def preprocess_01_for_train(training_data):
     training_min0 = training_data[:, :, :, 0].min()
     training_max0 = training_data[:, :, :, 0].max()
     training_min1 = training_data[:, :, :, 1].min()
@@ -78,7 +83,7 @@ def preprocess2_for_train(training_data):
     fh.close()
 
 
-def preprocess2(training_data, di_or_de):
+def preprocess_01(training_data, di_or_de):
     """
     for 0-1 normalization
     :param di_or_de:
@@ -120,3 +125,63 @@ def dimensionless(training_data, di_or_de):
         training_data[:, :, :, 0] = training_data[:, :, :, 0] * 2
         training_data[:, :, :, 1] = training_data[:, :, :, 1] * 50
     return training_data
+
+
+def read_sstm_data():
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_preprocessing_file + "sstm.dat"
+    fh = open(filename, mode='rb')
+    data_sstm = np.empty([30, 34, 12])
+    for l in range(12):
+        for i in range(30):
+            for j in range(34):
+                data = fh.read(8)  # type(data) === bytes
+                text = struct.unpack("d", data)[0]
+                data_sstm[i][j][l] = text
+    fh.close()
+    data_sstm_region = np.empty([20, 27, 12])
+    for l in range(12):
+        for i in range(20):
+            for j in range(27):
+                data_sstm_region[i][j][l] = data_sstm[i+5][j+5][l]
+    return data_sstm_region
+
+
+def read_sst_mean_data():
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_preprocessing_file + "sst_mean.dat"
+    fh = open(filename, mode='rb')
+    data_sst_mean = np.empty([20, 27])
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            data_sst_mean[i][j] = text
+    fh.close()
+    return data_sst_mean
+
+
+def no_month_mean(training_data, di_or_de):
+    """
+    First, add sstm. Then, subtract mean
+    :param di_or_de: 2 for write sst_mean_data
+    :param training_data:
+    :return:
+    """
+    data_sstm = read_sstm_data()
+    if di_or_de == 2:
+        training_no_mean = training_data.copy()
+        for i in range(training_data.shape[0]):
+            training_no_mean[i, :, :, 0] = training_data[i, :, :, 0] + data_sstm[:, :, i % 12]
+        data_mean = np.mean(training_no_mean[:, :, :, :], axis=0)
+        file_helper_unformatted.write_data(1, data_mean)
+        return
+    data_mean = read_sst_mean_data()
+    training_no_mean = training_data.copy()
+    if di_or_de == 0:
+        for i in range(training_data.shape[0]):
+            training_no_mean[i, :, :, 0] = training_data[i, :, :, 0] + data_sstm[:, :, i % 12]
+        training_no_mean[:, :, :, 0] = training_no_mean[:, :, :, 0] - data_mean
+    if di_or_de == 1:
+        training_no_mean[:, :, :, 0] = training_data[:, :, :, 0] + data_mean
+        for i in range(training_data.shape[0]):
+            training_no_mean[i, :, :, 0] = training_no_mean[i, :, :, 0] - data_sstm[:, :, i % 12]
+    return training_no_mean

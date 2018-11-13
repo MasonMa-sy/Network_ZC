@@ -10,7 +10,7 @@ from keras.models import load_model
 import keras.backend as K
 import matplotlib.pyplot as plt
 # My libraries
-from network_zc.tools import file_helper_unformatted,data_preprocess
+from network_zc.tools import file_helper_unformatted, data_preprocess, name_list
 from network_zc.tools import index_calculation
 from network_zc.model_trainer import dense_trainer
 from network_zc.model_trainer import dense_trainer_sstaha
@@ -41,10 +41,11 @@ model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squa
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 11140
+file_num = 4890
 month = 100
 interval = 12
 prediction_month = 12
+data_preprocess_method = name_list.data_preprocess_method
 # for dense_model
 # predict_data = np.empty([1, 540])
 # predict_data[0] = file_helper.read_data(file_num)
@@ -60,24 +61,45 @@ for start_month in range(file_num, file_num + month - interval, interval):
     nino34 = [index_calculation.get_nino34(predict_data[0])]
 
     # data preprocess z-zero
-    # data_mean, data_std = file_helper_unformatted.read_preprocessing_data()
-    # predict_data[0] = (predict_data[0]-data_mean)/data_std
+    if data_preprocess_method == 'preprocess_Z':
+        predict_data = data_preprocess.preprocess_Z(predict_data, 0)
     # data preprocess dimensionless
-    redict_data = data_preprocess.dimensionless(predict_data, 0)
+    if data_preprocess_method == 'dimensionless':
+        redict_data = data_preprocess.dimensionless(predict_data, 0)
     # data preprocess 0-1
-    # predict_data = file_helper_unformatted.preprocess2(predict_data, 0)
+    if data_preprocess_method == 'preprocess_01':
+        predict_data = data_preprocess.preprocess_01(predict_data, 0)
+    # data preprocess no month mean
+    if data_preprocess_method == 'nomonthmean':
+        predict_data = data_preprocess.no_month_mean(predict_data, 0)
+
     data_x[0] = np.reshape(predict_data[0], (1, 1080))
 
     for i in range(prediction_month):
         data_x = model.predict(data_x)
 
         data_y[0] = np.reshape(data_x[0], (20, 27, 2))
+
         # data preprocess z-zero
-        # data_y[0] = data_y[0]*data_std+data_mean
+        if data_preprocess_method == 'preprocess_Z':
+            data_y = data_preprocess.preprocess_Z(data_y, 1)
         # data preprocess dimensionless
-        data_y = data_preprocess.dimensionless(data_y, 1)
+        if data_preprocess_method == 'dimensionless':
+            data_y = data_preprocess.dimensionless(data_y, 1)
         # data preprocess 0-1
-        # data_y = file_helper_unformatted.preprocess2(data_y, 1)
+        if data_preprocess_method == 'preprocess_01':
+            data_y = data_preprocess.preprocess_01(data_y, 1)
+        # data preprocess no month mean
+        if data_preprocess_method == 'nomonthmean':
+            data_y = data_preprocess.no_month_mean(data_y, 1)
+        # data preprocess z-zero
+        # data_y = data_preprocess.preprocess_Z(data_y, 1)
+        # data preprocess dimensionless
+        # data_y = data_preprocess.dimensionless(data_y, 1)
+        # data preprocess 0-1
+        # data_y = data_preprocess.preprocess_01(data_y, 1)
+        # data preprocess no month mean
+        data_y = data_preprocess.no_month_mean(data_y, 1)
 
         # calculate nino 3.4 index
         nino34_temp1 = index_calculation.get_nino34(data_y[0])
