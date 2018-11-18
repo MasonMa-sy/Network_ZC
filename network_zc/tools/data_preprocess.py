@@ -6,13 +6,12 @@ This script is done for data preprocess
 import numpy as np
 import struct
 # My libraries
-from network_zc.tools import file_helper_unformatted
+from network_zc.tools import file_helper_unformatted, name_list
 
-data_file = file_helper_unformatted.data_file
-data_name = file_helper_unformatted.data_name
-data_file_statistics = file_helper_unformatted.data_file_statistics
-data_preprocessing_file = file_helper_unformatted.data_preprocessing_file
-
+data_file = name_list.data_file
+data_name = name_list.data_name
+data_file_statistics = name_list.data_file_statistics
+data_preprocessing_file = name_list.data_preprocessing_file
 
 def read_preprocessing_data():
     """

@@ -1,38 +1,9 @@
 import numpy as np
 from network_zc.tools import file_helper_unformatted, data_preprocess
+from scipy.interpolate import griddata
+import matplotlib.pyplot as plt
 
-# a = np.empty([540, 3])
-# a[:, 0] = range(1, 541)
-# a[:, 1] = 2 * a[:, 0]
-# a[:, 2] = 3 * a[:, 0]
-# print(a)
-# b = np.reshape(a, (3, 1, 20, 27))
-# print(b)
-# a = np.empty(10)
-# a[:] = range(1, 11)
-# print(a)
-# b = np.reshape(a, (5, 2), order='F')
-# print(b)
-# a = np.ones([27, 20])
-# b = np.empty([27, 20, 2])
-# b[:, :, 0] = a
-# print(b)
-# test = [x for x in range(0, 130)]
-# i = 0
-# del test[0]
-# length = 130-1
-# while i<length:
-#     for j in range(12):
-#         i=i+1
-#     if i<length:
-#         del test[i]
-#         length=length-1
-# print(test)
-a=np.array([[1,2,3],[4,5,6]])
-b=a.copy()
-b[1][1]=10
-str = '123'
-print(str == '1234')
+for i in range(12):
+    index = np.arange(i, 465, 12)
 
-
-
+print(1, 2)

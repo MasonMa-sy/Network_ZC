@@ -74,10 +74,8 @@ for start_month in range(file_num, file_num + month - interval, interval):
         predict_data = data_preprocess.no_month_mean(predict_data, 0)
 
     data_x[0] = np.reshape(predict_data[0], (1, 1080))
-
     for i in range(prediction_month):
         data_x = model.predict(data_x)
-
         data_y[0] = np.reshape(data_x[0], (20, 27, 2))
 
         # data preprocess z-zero
@@ -92,14 +90,6 @@ for start_month in range(file_num, file_num + month - interval, interval):
         # data preprocess no month mean
         if data_preprocess_method == 'nomonthmean':
             data_y = data_preprocess.no_month_mean(data_y, 1)
-        # data preprocess z-zero
-        # data_y = data_preprocess.preprocess_Z(data_y, 1)
-        # data preprocess dimensionless
-        # data_y = data_preprocess.dimensionless(data_y, 1)
-        # data preprocess 0-1
-        # data_y = data_preprocess.preprocess_01(data_y, 1)
-        # data preprocess no month mean
-        data_y = data_preprocess.no_month_mean(data_y, 1)
 
         # calculate nino 3.4 index
         nino34_temp1 = index_calculation.get_nino34(data_y[0])
