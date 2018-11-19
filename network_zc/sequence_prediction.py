@@ -41,8 +41,8 @@ model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squa
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 11140
-month = 100
+file_num = 430
+month = 1
 data_preprocess_method = name_list.data_preprocess_method
 # for dense_model
 # predict_data = np.empty([1, 540])
@@ -91,23 +91,23 @@ for i in range(month):
     # data preprocess no month mean
     if data_preprocess_method == 'nomonthmean':
         data_y = data_preprocess.no_month_mean(data_y, 1)
-
-    nino34_temp1 = index_calculation.get_nino34(data_y[0])
-    nino34.append(nino34_temp1)
-    # write data for maximum value of nino34
-    if i > 1 and nino34_temp[1] > nino34_temp[0] and nino34_temp[1] > nino34_temp1:
-        # file_helper_unformatted.write_data(file_num+i, data_temp[1])
-        print(file_num+i)
-    data_temp[0] = data_temp[1]
-    data_temp[1] = data_y[0]
-    nino34_temp[0] = nino34_temp[1]
-    nino34_temp[1] = nino34_temp1
+    file_helper_unformatted.write_data(file_num + i + 1, data_y[0])
+    # nino34_temp1 = index_calculation.get_nino34(data_y[0])
+    # nino34.append(nino34_temp1)
+    # # write data for maximum value of nino34
+    # if i > 1 and nino34_temp[1] > nino34_temp[0] and nino34_temp[1] > nino34_temp1:
+    #     # file_helper_unformatted.write_data(file_num+i, data_temp[1])
+    #     print(file_num+i)
+    # data_temp[0] = data_temp[1]
+    # data_temp[1] = data_y[0]
+    # nino34_temp[0] = nino34_temp[1]
+    # nino34_temp[1] = nino34_temp1
 # file_helper_unformatted.write_data(file_num+month, data_temp[1])
-x = np.linspace(file_num, file_num + month + 1, month + 1)
-plt.plot(x, nino34)
-plt.plot(x, index_calculation.get_nino34_from_data(file_num, month))
-plt.legend(['prediction', 'ZCdata'], loc='upper right')
-plt.show()
+# x = np.linspace(file_num, file_num + month + 1, month + 1)
+# plt.plot(x, nino34)
+# plt.plot(x, index_calculation.get_nino34_from_data(file_num, month))
+# plt.legend(['prediction', 'ZCdata'], loc='upper right')
+# plt.show()
 
 
 # file_helper_unformatted.write_data(file_num, model.predict(data_x)[0])

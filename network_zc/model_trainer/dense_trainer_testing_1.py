@@ -25,10 +25,11 @@ data_preprocess_method = name_list.data_preprocess_method
 # training_num = 12060
 # testing_num = 0
 training_start = 0
-training_num = 464
+training_num = 372
+all_num = 464
 testing_num = 0
 epochs = 100
-batch_size = 64
+batch_size = 32
 
 
 def root_mean_squared_error(y_true, y_pred):
@@ -74,23 +75,25 @@ if __name__ == '__main__':
     model.compile(optimizer=adam, loss=mean_squared_error, metrics=[mean_squared_error, root_mean_squared_error,
                                                                     mean_absolute_error])
     # to train model
-    training_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, training_num)
+    all_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, all_num)
 
     # data preprocess z-zero
     if data_preprocess_method == 'preprocess_Z':
-        training_data = data_preprocess.preprocess_Z(training_data, 0)
+        all_data = data_preprocess.preprocess_Z(all_data, 0)
     # data preprocess dimensionless
     if data_preprocess_method == 'dimensionless':
-        training_data = data_preprocess.dimensionless(training_data, 0)
+        all_data = data_preprocess.dimensionless(all_data, 0)
     # data preprocess 0-1
     if data_preprocess_method == 'preprocess_01':
-        training_data = data_preprocess.preprocess_01(training_data, 0)
+        all_data = data_preprocess.preprocess_01(all_data, 0)
     # data preprocess no month mean
     if data_preprocess_method == 'nomonthmean':
-        training_data = data_preprocess.no_month_mean(training_data, 0)
+        all_data = data_preprocess.no_month_mean(all_data, 0)
 
-    data_x = np.reshape(training_data[:-1], (training_num-training_start, 1080))
-    data_y = np.reshape(training_data[1:], (training_num-training_start, 1080))
+    testing_data = all_data[372:]
+    training_data = all_data[:372]
+    data_x = np.reshape(training_data[:-1], (training_num-1, 1080))
+    data_y = np.reshape(training_data[1:], (training_num-1, 1080))
     tesorboard = TensorBoard('..\..\model\\tensorboard\\' + model_name)
     train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
                            callbacks=[tesorboard], validation_split=0.1)
@@ -100,6 +103,11 @@ if __name__ == '__main__':
     with open(file_helper_unformatted.find_logs(model_name+'_train'), 'w') as f:
         f.write(str(train_hist.history))
 
+    data_x = np.reshape(testing_data[:-1], (all_num-training_num, 1080))
+    data_y = np.reshape(testing_data[1:], (all_num-training_num, 1080))
+    test_hist = model.evaluate(data_x, data_y, batch_size=batch_size, verbose=2)
+    with open(file_helper_unformatted.find_logs(model_name+'_test'), 'w') as f:
+        f.write(str(test_hist))
     # To predict the result
     # predict_data = np.empty([1, 540])
     # predict_data[0] = data_loader.read_data(3170)
