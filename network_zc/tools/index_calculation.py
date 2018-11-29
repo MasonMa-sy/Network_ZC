@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 from network_zc.tools import file_helper_unformatted
 
 
-def get_nino34(data_2D):
+def get_nino34(data_2d):
     nino3_temp = 0
     for i in range(7, 13):
         for j in range(11, 20):
-            nino3_temp += data_2D[i][j][0]
+            nino3_temp += data_2d[i][j][0]
     return nino3_temp/54
 
 

@@ -2,11 +2,17 @@
 This script is for some parameter set.
 """
 # for model
-model_name = 'dense_model_sstaha_4_dimensionless'
+model_name = 'conv_model_dimensionless_2_ssim'
+model_type = 'conv'
+# for retrain model
+retrain_model_name = 'dense_model_dimensionless_to_historical'
+# for ssim
+kernel_size = 3
+max_value = 10
 
 # for reading data
-data_file = 'data_historical'
-data_name = '\data_historical_'
+data_file = 'data_nature2'
+data_name = '\data_'
 # for data preprocess
 data_file_statistics = '..\data\predict_data_'
 data_preprocessing_file = '\mean\\'
