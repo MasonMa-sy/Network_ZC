@@ -45,6 +45,7 @@ if __name__ == '__main__':
     data_preprocess_method = name_list.data_preprocess_method
 
     all_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, all_num)
+    all_data = file_helper_unformatted.exchange_rows(all_data)
     # data preprocess z-zero
     if data_preprocess_method == 'preprocess_Z':
         all_data = data_preprocess.preprocess_Z(all_data, 0)
@@ -61,13 +62,13 @@ if __name__ == '__main__':
     data_x = np.reshape(all_data[:-1], (all_num, 1080))
     data_y = np.reshape(all_data[1:], (all_num, 1080))
 
-    for layer in model.layers[:]:
+    for layer in model.layers[:5]:
         layer.trainable = False
-    for layer in model.layers[6:10]:
-        layer.trainable = True
+    # for layer in model.layers[6:10]:
+    #     layer.trainable = True
     for layer in model.layers:
         print(layer.trainable)
-    adam = optimizers.Adam(lr=0.00001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+    adam = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
     model.compile(optimizer=adam, loss=mean_squared_error, metrics=[mean_squared_error, root_mean_squared_error,
                                                                     mean_absolute_error])
     tesorboard = TensorBoard('..\model\\tensorboard\\' + retrain_model_name)

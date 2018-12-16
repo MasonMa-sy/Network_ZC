@@ -10,9 +10,9 @@ from keras.models import load_model
 import keras.backend as K
 import matplotlib.pyplot as plt
 # My libraries
-from network_zc.keras_contrib.losses import DSSIMObjective
+from network_zc.keras_contrib.losses import DSSIMObjective, DSSIMObjectiveCustom
 from network_zc.tools import file_helper_unformatted, data_preprocess, name_list
-from network_zc.tools import index_calculation
+from network_zc.tools import index_calculation, math_tool
 from network_zc.model_trainer import dense_trainer
 from network_zc.model_trainer import dense_trainer_sstaha
 from network_zc.model_trainer import dense_trainer_sstaha_4
@@ -37,10 +37,16 @@ model_type = name_list.model_type
 if model_type == 'conv':
     kernel_size = name_list.kernel_size
     max_value = name_list.max_value
-    ssim = DSSIMObjective(kernel_size=kernel_size, max_value=max_value)
+    ssim = DSSIMObjectiveCustom(kernel_size=kernel_size, max_value=max_value)
+    ssim_metrics = DSSIMObjectiveCustom(kernel_size=7, max_value=10)
+
+    def ssim_l1(y_true, y_pred):
+        a = 0.84
+        return a * ssim(y_true, y_pred) + (1 - a) * mean_absolute_error(y_true, y_pred)
+
     model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
             'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error,
-                                                                          'DSSIMObjective': ssim})
+            'ssim_metrics': ssim_metrics, 'ssim_l1': ssim_l1, 'DSSIMObjective': ssim})
 else:
     model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
             'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error})
@@ -51,10 +57,18 @@ else:
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 11140
-month = 100
+"""
+file_num: the first prediction of data num
+month: month num to predict
+interval: Prediction interval
+prediction_month: For the model to predict month num
+directly_month: rolling run model times
+"""
+file_num = 416
+month = 48
 interval = 1
-prediction_month = 9
+prediction_month = 1
+directly_month = 1
 data_preprocess_method = name_list.data_preprocess_method
 # for dense_model
 # predict_data = np.empty([1, 540])
@@ -69,7 +83,8 @@ if model_type == 'conv':
 else:
     data_x = np.empty([1, 1080])
 nino34 = []
-for start_month in range(file_num-prediction_month, file_num+month-prediction_month+1, interval):
+for start_month in range(file_num-prediction_month*directly_month, file_num+month-prediction_month*directly_month+1,
+                         interval):
     predict_data[0] = file_helper_unformatted.read_data_sstaha(start_month)
 
     # data preprocess z-zero
@@ -90,7 +105,7 @@ for start_month in range(file_num-prediction_month, file_num+month-prediction_mo
     else:
         data_x[0] = np.reshape(predict_data[0], (1, 1080))
 
-    for i in range(prediction_month):
+    for i in range(directly_month):
         data_x = model.predict(data_x)
 
     if model_type == 'conv':
@@ -118,7 +133,9 @@ for start_month in range(file_num-prediction_month, file_num+month-prediction_mo
 # x = np.linspace(file_num, start_month + prediction_month, prediction_month + 1)
 x = np.linspace(file_num, file_num + month, month + 1)
 plt.plot(x, nino34, 'b')
-plt.plot(x, index_calculation.get_nino34_from_data(file_num, month), 'r', linewidth=1)
+nino34_from_data = index_calculation.get_nino34_from_data(file_num, month)
+plt.plot(x, nino34_from_data, 'r', linewidth=1)
+print(math_tool.pearson_distance(nino34,nino34_from_data))
 # plt.legend(['prediction', 'ZCdata'], loc='upper right')
 plt.show()
 

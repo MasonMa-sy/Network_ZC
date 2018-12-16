@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 # My libraries
 from network_zc.tools import file_helper_unformatted,data_preprocess, name_list
 from network_zc.tools import index_calculation
+from network_zc.keras_contrib.losses import DSSIMObjective, DSSIMObjectiveCustom
 from network_zc.model_trainer import dense_trainer
 from network_zc.model_trainer import dense_trainer_sstaha
 from network_zc.model_trainer import dense_trainer_sstaha_4
@@ -30,10 +31,25 @@ def mean_squared_error(y_true, y_pred):
     return K.mean(K.square(y_pred - y_true), axis=-1)
 
 
+model_name = name_list.model_name
+model_type = name_list.model_type
 # Load the model
-model_name = dense_trainer_sstaha_4.model_name
-model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error
-, 'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error})
+if model_type == 'conv':
+    kernel_size = name_list.kernel_size
+    max_value = name_list.max_value
+    ssim = DSSIMObjectiveCustom(kernel_size=kernel_size, max_value=max_value)
+    ssim_metrics = DSSIMObjectiveCustom(kernel_size=7, max_value=10)
+
+    def ssim_l1(y_true, y_pred):
+        a = 0.84
+        return a * ssim(y_true, y_pred) + (1 - a) * mean_absolute_error(y_true, y_pred)
+
+    model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
+            'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error,
+            'ssim_metrics': ssim_metrics, 'ssim_l1': ssim_l1, 'DSSIMObjective': ssim})
+else:
+    model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
+            'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error})
 
 # Predict
 # file_num = np.arange(3100, 3400, 30)
@@ -41,8 +57,9 @@ model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squa
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 430
-month = 1
+file_num = 11200
+prediction_month = 9
+directly_month = 1
 data_preprocess_method = name_list.data_preprocess_method
 # for dense_model
 # predict_data = np.empty([1, 540])
@@ -52,7 +69,10 @@ data_preprocess_method = name_list.data_preprocess_method
 # for dense_model ssta and ha
 predict_data = np.empty([1, 20, 27, 2])
 data_y = np.empty([1, 20, 27, 2])
-data_x = np.empty([1, 1080])
+if model_type == 'conv':
+    data_x = np.empty([1, 20, 27, 2])
+else:
+    data_x = np.empty([1, 1080])
 predict_data[0] = file_helper_unformatted.read_data_sstaha(file_num)
 
 nino34 = [index_calculation.get_nino34(predict_data[0])]
@@ -70,14 +90,20 @@ if data_preprocess_method == 'preprocess_01':
 if data_preprocess_method == 'nomonthmean':
     predict_data = data_preprocess.no_month_mean(predict_data, 0)
 
-data_x[0] = np.reshape(predict_data[0], (1, 1080))
+if model_type == 'conv':
+    data_x[0] = predict_data[0]
+else:
+    data_x[0] = np.reshape(predict_data[0], (1, 1080))
 
 data_temp = np.empty([2, 20, 27, 2])
 nino34_temp = np.empty([2])
-for i in range(month):
+for i in range(directly_month):
     data_x = model.predict(data_x)
 
-    data_y[0] = np.reshape(data_x[0], (20, 27, 2))
+    if model_type == 'conv':
+        data_y[0] = data_x[0]
+    else:
+        data_y[0] = np.reshape(data_x[0], (20, 27, 2))
 
     # data preprocess z-zero
     if data_preprocess_method == 'preprocess_Z':
@@ -91,7 +117,7 @@ for i in range(month):
     # data preprocess no month mean
     if data_preprocess_method == 'nomonthmean':
         data_y = data_preprocess.no_month_mean(data_y, 1)
-    file_helper_unformatted.write_data(file_num + i + 1, data_y[0])
+    file_helper_unformatted.write_data(file_num + directly_month*prediction_month, data_y[0])
     # nino34_temp1 = index_calculation.get_nino34(data_y[0])
     # nino34.append(nino34_temp1)
     # # write data for maximum value of nino34

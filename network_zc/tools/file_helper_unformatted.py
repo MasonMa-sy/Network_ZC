@@ -266,3 +266,12 @@ def for_decay_trainingdata(training_data):
 def find_logs(filename):
     file = '..\..\model\logs\\' + filename
     return file
+
+
+def exchange_rows(training_data):
+    exchange_data = training_data.copy()
+    rows = training_data.shape[1]
+    for i in range(rows):
+        exchange_data[:, i, :, :] = training_data[:, rows-i-1, :, :]
+    return exchange_data
+

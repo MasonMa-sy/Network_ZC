@@ -32,7 +32,7 @@ def mean_squared_error(y_true, y_pred):
 
 if __name__ == '__main__':
     # Load the model
-    model_name = dense_trainer_sstaha_4.model_name
+    model_name = name_list.model_name
     model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error
     , 'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error})
 
@@ -42,6 +42,7 @@ if __name__ == '__main__':
     data_preprocess_method = name_list.data_preprocess_method
 
     all_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, all_num)
+    all_data = file_helper_unformatted.exchange_rows(all_data)
     # data preprocess z-zero
     if data_preprocess_method == 'preprocess_Z':
         all_data = data_preprocess.preprocess_Z(all_data, 0)

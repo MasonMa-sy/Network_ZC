@@ -20,8 +20,8 @@ from network_zc.tools import file_helper_unformatted, name_list, data_preprocess
 model_name = name_list.model_name
 data_preprocess_method = name_list.data_preprocess_method
 
-training_start = 0
-training_num = 464
+training_start = 60
+training_num = 12060
 testing_num = 0
 epochs = 50
 batch_size = 64
@@ -81,7 +81,7 @@ if __name__ == '__main__':
         a = 0.84
         return a*ssim(y_true, y_pred) + (1-a)*mean_absolute_error(y_true, y_pred)
 
-    model.compile(optimizer=adam, loss=mean_squared_error,
+    model.compile(optimizer=adam, loss=ssim_l1,
                   metrics=[root_mean_squared_error, ssim_metrics, mean_absolute_error, mean_squared_error])
     # to train model
     # the data for training is ssta and ha
@@ -100,8 +100,8 @@ if __name__ == '__main__':
     if data_preprocess_method == 'nomonthmean':
         training_data = data_preprocess.no_month_mean(training_data, 0)
 
-    data_x = training_data[:-9]
-    data_y = training_data[9:]
+    data_x = training_data[:-1]
+    data_y = training_data[1:]
     tesorboard = TensorBoard('..\..\model\\tensorboard\\' + model_name)
     train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
                            callbacks=[tesorboard], validation_split=0.1)
