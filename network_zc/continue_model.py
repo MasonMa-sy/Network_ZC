@@ -34,8 +34,7 @@ def mean_squared_error(y_true, y_pred):
 
 if __name__ == '__main__':
     # Load the model
-    model_name = name_list.model_name
-    retrain_model_name = name_list.retrain_model_name
+    continue_model_name = name_list.continue_model_name
     model_type = name_list.model_type
     is_retrain = name_list.is_retrain
     # Load the model
@@ -49,17 +48,17 @@ if __name__ == '__main__':
             a = 0.84
             return a * ssim(y_true, y_pred) + (1 - a) * mean_absolute_error(y_true, y_pred)
 
-        model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
+        model = load_model('..\model\\' + continue_model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
             'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error,
             'ssim_metrics': ssim_metrics, 'ssim_l1': ssim_l1, 'DSSIMObjective': ssim})
     elif model_type == 'dense':
-        model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error
+        model = load_model('..\model\\' + continue_model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error
             , 'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error})
     print(len(model.layers))
     training_start = 0
     all_num = 464
     batch_size = 32
-    epochs = 200
+    epochs = 500
     data_preprocess_method = name_list.data_preprocess_method
 
     all_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, all_num)
@@ -92,17 +91,9 @@ if __name__ == '__main__':
     #     layer.trainable = True
     for layer in model.layers:
         print(layer.trainable)
-    adam = optimizers.Adam(lr=0.00005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
-    if model_type == 'dense':
-        model.compile(optimizer=adam, loss=mean_squared_error, metrics=[mean_squared_error, root_mean_squared_error
-                                                                    ,mean_absolute_error])
-    elif model_type == 'conv':
-        ssim_metrics = DSSIMObjectiveCustom(kernel_size=7, max_value=10)
-        model.compile(optimizer=adam, loss=mean_squared_error,
-                      metrics=[root_mean_squared_error, ssim_metrics, mean_absolute_error, mean_squared_error])
-    tesorboard = TensorBoard('..\model\\tensorboard\\' + retrain_model_name)
+    tesorboard = TensorBoard('..\model\\tensorboard\\' + continue_model_name)
     train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
                            callbacks=[tesorboard], validation_split=0.1)
-    model.save('..\model\\' + retrain_model_name + '.h5')
-    with open('..\model\\logs\\'+retrain_model_name + '_train', 'w') as f:
+    model.save('..\model\\' + continue_model_name + '.h5')
+    with open('..\model\\logs\\'+continue_model_name + '_train', 'w') as f:
         f.write(str(train_hist.history))

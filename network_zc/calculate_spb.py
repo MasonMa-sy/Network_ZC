@@ -31,8 +31,13 @@ def mean_squared_error(y_true, y_pred):
     return K.mean(K.square(y_pred - y_true), axis=-1)
 
 
+def calculate_error(y_true, y_pred):
+    return np.sum((y_true-y_pred)**2)
+
+
 model_name = name_list.model_name
 model_type = name_list.model_type
+is_retrain = name_list.is_retrain
 # Load the model
 if model_type == 'conv':
     kernel_size = name_list.kernel_size
@@ -57,9 +62,9 @@ else:
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 11200
-prediction_month = 9
-directly_month = 1
+file_num = 207
+prediction_month = 1
+directly_month = 12
 data_preprocess_method = name_list.data_preprocess_method
 # for dense_model
 # predict_data = np.empty([1, 540])
@@ -69,13 +74,14 @@ data_preprocess_method = name_list.data_preprocess_method
 # for dense_model ssta and ha
 predict_data = np.empty([1, 20, 27, 2])
 data_y = np.empty([1, 20, 27, 2])
+data_realistic = np.empty([1, 20, 27, 2])
 if model_type == 'conv':
     data_x = np.empty([1, 20, 27, 2])
 else:
     data_x = np.empty([1, 1080])
 predict_data[0] = file_helper_unformatted.read_data_sstaha(file_num)
-
-nino34 = [index_calculation.get_nino34(predict_data[0])]
+if is_retrain:
+    predict_data = file_helper_unformatted.exchange_rows(predict_data)
 
 # data preprocess z-zero
 if data_preprocess_method == 'preprocess_Z':
@@ -95,8 +101,7 @@ if model_type == 'conv':
 else:
     data_x[0] = np.reshape(predict_data[0], (1, 1080))
 
-data_temp = np.empty([2, 20, 27, 2])
-nino34_temp = np.empty([2])
+ssta_error = np.empty([directly_month])
 for i in range(directly_month):
     data_x = model.predict(data_x)
 
@@ -117,37 +122,14 @@ for i in range(directly_month):
     # data preprocess no month mean
     if data_preprocess_method == 'nomonthmean':
         data_y = data_preprocess.no_month_mean(data_y, 1)
-    file_helper_unformatted.write_data(file_num + directly_month*prediction_month, data_y[0])
-    # nino34_temp1 = index_calculation.get_nino34(data_y[0])
-    # nino34.append(nino34_temp1)
-    # # write data for maximum value of nino34
-    # if i > 1 and nino34_temp[1] > nino34_temp[0] and nino34_temp[1] > nino34_temp1:
-    #     # file_helper_unformatted.write_data(file_num+i, data_temp[1])
-    #     print(file_num+i)
-    # data_temp[0] = data_temp[1]
-    # data_temp[1] = data_y[0]
-    # nino34_temp[0] = nino34_temp[1]
-    # nino34_temp[1] = nino34_temp1
-# file_helper_unformatted.write_data(file_num+month, data_temp[1])
-# x = np.linspace(file_num, file_num + month + 1, month + 1)
-# plt.plot(x, nino34)
-# plt.plot(x, index_calculation.get_nino34_from_data(file_num, month))
-# plt.legend(['prediction', 'ZCdata'], loc='upper right')
-# plt.show()
+    data_realistic[0] = file_helper_unformatted.read_data_sstaha(file_num+i+1)
+    if is_retrain:
+        data_realistic = file_helper_unformatted.exchange_rows(data_realistic)
+    ssta_error[i] = calculate_error(data_y[0], data_realistic[0])
 
-
-# file_helper_unformatted.write_data(file_num, model.predict(data_x)[0])
-
-# for convolutional model only ssta
-# predict_data = np.empty([1, 540])
-# predict_data[0] = file_helper.read_data(file_num)
-# predict_result = model.predict(np.reshape(predict_data[0], (1, 20, 27, 1)))
-# file_helper.write_data_conv2d(file_num, predict_result[0])
-
-# for convolutional model ssta and ha
-# predict_data = np.empty([1, 20, 27, 2])
-# predict_data[0] = file_helper.read_data_sstaha(file_num)
-# predict_result = model.predict(predict_data)
-# file_helper.write_data(file_num, predict_result[0])
-
+print(ssta_error)
+print(ssta_error[2]-0)
+print(ssta_error[5]-ssta_error[2])
+print(ssta_error[8]-ssta_error[5])
+print(ssta_error[11]-ssta_error[8])
 

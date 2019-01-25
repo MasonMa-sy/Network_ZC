@@ -2,7 +2,8 @@
 For the first test to train neural networks for zc model using convolution layers.
 """
 # Third-party libraries
-from keras.layers import Input, Dense, Reshape, Flatten, Dropout, LeakyReLU, Conv2D, Conv2DTranspose, LocallyConnected2D
+from keras.layers import Input, Dense, Reshape, Flatten, Dropout, LeakyReLU, Conv2D, Conv2DTranspose, \
+    LocallyConnected2D, Conv3D
 from keras import optimizers
 from keras.models import Model
 from keras.callbacks import TensorBoard
@@ -20,11 +21,11 @@ from network_zc.tools import file_helper_unformatted, name_list, data_preprocess
 model_name = name_list.model_name
 data_preprocess_method = name_list.data_preprocess_method
 
-training_start = 60
-training_num = 12060
+training_start = 0
+training_num = 464
 testing_num = 0
-epochs = 50
-batch_size = 64
+epochs = 200
+batch_size = 32
 kernel_size = name_list.kernel_size
 max_value = name_list.max_value
 
@@ -43,37 +44,37 @@ def mean_squared_error(y_true, y_pred):
 
 if __name__ == '__main__':
     # To define the model
-    inputs = Input(shape=(20, 27, 2))
-    layer1 = BatchNormalization()(inputs)
-    # 20x27 to 8x12
-    layer1 = Conv2D(filters=32, kernel_size=(4, 5), strides=2, padding='valid')(layer1)
-    layer1 = BatchNormalization()(layer1)
-    layer1 = LeakyReLU(alpha=0.3)(layer1)
-    layer1 = Dropout(0.2)(layer1)
-    # 9x12 to 7x10
-    layer2 = Conv2D(filters=64, kernel_size=3, strides=1, padding='valid')(layer1)
-    layer2 = BatchNormalization()(layer2)
-    layer2 = LeakyReLU(alpha=0.3)(layer2)
-    layer2 = Dropout(0.2)(layer2)
+    inputs = Input(shape=(3, 20, 27, 2))                                                   # 0
+    layer1 = BatchNormalization()(inputs)                                               # 1
+    # 12x20x27 to 8x9x12
+    layer1 = Conv3D(filters=32, kernel_size=(3, 4, 5), strides=(1, 2, 2), padding='valid')(layer1)     # 2
+    layer1 = BatchNormalization()(layer1)                                               # 3
+    layer1 = LeakyReLU(alpha=0.3)(layer1)                                               # 4
+    layer1 = Dropout(0.2)(layer1)                                                       # 5
+    # 8x9x12 to 6x7x10
+    layer2 = Conv3D(filters=64, kernel_size=(1, 3, 3), strides=1, padding='valid')(layer1)      # 6
+    layer2 = BatchNormalization()(layer2)                                               # 7
+    layer2 = LeakyReLU(alpha=0.3)(layer2)                                               # 8
+    layer2 = Dropout(0.2)(layer2)                                                       # 9
     # print(layer2.get_shape().as_list())
-    layer3 = Flatten()(layer2)
+    layer3 = Flatten()(layer2)                                                          # 10
     # layer3 = Dense(20*27, activation='linear')(layer3)
     # predictions = Reshape((20, 27, 1))(layer3)
-    layer3 = Dense(7*10*64)(layer3)
-    layer3 = BatchNormalization()(layer3)
-    layer3 = LeakyReLU(alpha=0.3)(layer3)
-    layer3 = Dropout(0.2)(layer3)
-    layer3 = Reshape((7, 10, 64))(layer3)
-    layer4 = Conv2DTranspose(filters=32, kernel_size=3, strides=1, padding='valid')(layer3)
-    layer4 = BatchNormalization()(layer4)
-    layer4 = LeakyReLU(alpha=0.3)(layer4)
-    layer4 = Dropout(0.2)(layer4)
+    layer3 = Dense(7*10*64)(layer3)                                                     # 11
+    layer3 = BatchNormalization()(layer3)                                               # 12
+    layer3 = LeakyReLU(alpha=0.3)(layer3)                                               # 13
+    layer3 = Dropout(0.2)(layer3)                                                       # 14
+    layer3 = Reshape((7, 10, 64))(layer3)                                               # 15
+    layer4 = Conv2DTranspose(filters=32, kernel_size=3, strides=1, padding='valid')(layer3)     # 16
+    layer4 = BatchNormalization()(layer4)                                               # 17
+    layer4 = LeakyReLU(alpha=0.3)(layer4)                                               # 18
+    layer4 = Dropout(0.2)(layer4)                                                       # 19
     predictions = Conv2DTranspose(filters=2, kernel_size=(4, 5), strides=2,
-                                  padding='valid', activation='linear')(layer4)
+                                  padding='valid', activation='linear')(layer4)         # 20
 
     model = Model(inputs=inputs, outputs=predictions)
     # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-    adam = optimizers.Adam(lr=0.0005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
+    adam = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
     ssim = DSSIMObjectiveCustom(kernel_size=kernel_size, max_value=max_value)
     ssim_metrics = DSSIMObjectiveCustom(kernel_size=7, max_value=10)
 
@@ -81,7 +82,7 @@ if __name__ == '__main__':
         a = 0.84
         return a*ssim(y_true, y_pred) + (1-a)*mean_absolute_error(y_true, y_pred)
 
-    model.compile(optimizer=adam, loss=ssim_l1,
+    model.compile(optimizer=adam, loss=mean_squared_error,
                   metrics=[root_mean_squared_error, ssim_metrics, mean_absolute_error, mean_squared_error])
     # to train model
     # the data for training is ssta and ha
@@ -100,8 +101,10 @@ if __name__ == '__main__':
     if data_preprocess_method == 'nomonthmean':
         training_data = data_preprocess.no_month_mean(training_data, 0)
 
-    data_x = training_data[:-1]
-    data_y = training_data[1:]
+    data_x = np.empty([training_num - training_start - 3 + 1, 3, 20, 27, 2])
+    for i in range(training_num - training_start - 3 + 1):
+        data_x[i] = training_data[i:i+3]
+    data_y = training_data[3:]
     tesorboard = TensorBoard('..\..\model\\tensorboard\\' + model_name)
     train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
                            callbacks=[tesorboard], validation_split=0.1)

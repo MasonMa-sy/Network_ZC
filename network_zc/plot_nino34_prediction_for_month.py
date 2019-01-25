@@ -1,5 +1,6 @@
 """
-
+for every @interval month, predict @prediction_month * @directly_month nino3.4 index,
+plot and calculate correlation coefficient.
 """
 # Third-party libraries
 from keras.layers import Input, Dense
@@ -33,6 +34,7 @@ def mean_squared_error(y_true, y_pred):
 
 model_name = name_list.model_name
 model_type = name_list.model_type
+is_retrain = name_list.is_retrain
 # Load the model
 if model_type == 'conv':
     kernel_size = name_list.kernel_size
@@ -47,7 +49,7 @@ if model_type == 'conv':
     model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
             'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error,
             'ssim_metrics': ssim_metrics, 'ssim_l1': ssim_l1, 'DSSIMObjective': ssim})
-else:
+elif model_type == 'dense':
     model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
             'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error})
 
@@ -64,11 +66,11 @@ interval: Prediction interval
 prediction_month: For the model to predict month num
 directly_month: rolling run model times
 """
-file_num = 416
-month = 48
+file_num = 192
+month = 36
 interval = 1
 prediction_month = 1
-directly_month = 1
+directly_month = 6
 data_preprocess_method = name_list.data_preprocess_method
 # for dense_model
 # predict_data = np.empty([1, 540])
@@ -86,7 +88,8 @@ nino34 = []
 for start_month in range(file_num-prediction_month*directly_month, file_num+month-prediction_month*directly_month+1,
                          interval):
     predict_data[0] = file_helper_unformatted.read_data_sstaha(start_month)
-
+    if is_retrain:
+        predict_data = file_helper_unformatted.exchange_rows(predict_data)
     # data preprocess z-zero
     if data_preprocess_method == 'preprocess_Z':
         predict_data = data_preprocess.preprocess_Z(predict_data, 0)
@@ -102,7 +105,7 @@ for start_month in range(file_num-prediction_month*directly_month, file_num+mont
 
     if model_type == 'conv':
         data_x[0] = predict_data[0]
-    else:
+    elif model_type == 'dense':
         data_x[0] = np.reshape(predict_data[0], (1, 1080))
 
     for i in range(directly_month):
@@ -110,7 +113,7 @@ for start_month in range(file_num-prediction_month*directly_month, file_num+mont
 
     if model_type == 'conv':
         data_y[0] = data_x[0]
-    else:
+    elif model_type == 'dense':
         data_y[0] = np.reshape(data_x[0], (20, 27, 2))
 
     # data preprocess z-zero
@@ -135,7 +138,7 @@ x = np.linspace(file_num, file_num + month, month + 1)
 plt.plot(x, nino34, 'b')
 nino34_from_data = index_calculation.get_nino34_from_data(file_num, month)
 plt.plot(x, nino34_from_data, 'r', linewidth=1)
-print(math_tool.pearson_distance(nino34,nino34_from_data))
+print(math_tool.pearson_distance(nino34, nino34_from_data))
 # plt.legend(['prediction', 'ZCdata'], loc='upper right')
 plt.show()
 

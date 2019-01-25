@@ -72,6 +72,7 @@ def corrcoef(x,y):
     return num/den
 
 
-text = struct.unpack("d", 0x000000000000f87f)[0]
-print(text)
+x=np.array([1,2])
+print(x+1)
+
 
