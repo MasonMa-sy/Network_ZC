@@ -38,6 +38,7 @@ def calculate_error(y_true, y_pred):
 model_name = name_list.model_name
 model_type = name_list.model_type
 is_retrain = name_list.is_retrain
+is_seasonal_circle = name_list.is_seasonal_circle
 # Load the model
 if model_type == 'conv':
     kernel_size = name_list.kernel_size
@@ -62,7 +63,7 @@ else:
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 414
+file_num = 198
 prediction_month = 1
 start_month_length = 12
 directly_month = 12
@@ -78,6 +79,8 @@ def calculate_12_month(start_month):
     predict_data = np.empty([1, 20, 27, 2])
     data_y = np.empty([1, 20, 27, 2])
     data_realistic = np.empty([1, 20, 27, 2])
+    if is_seasonal_circle:
+        data_sc = np.empty([1, 1], dtype='int32')
     if model_type == 'conv':
         data_x = np.empty([1, 20, 27, 2])
     else:
@@ -106,7 +109,12 @@ def calculate_12_month(start_month):
 
     ssta_error = np.empty([directly_month])
     for i in range(directly_month):
-        data_x = model.predict(data_x)
+
+        if is_seasonal_circle:
+            data_sc[0] = [(start_month+i) % 12]
+            data_x = model.predict([data_x, data_sc])
+        else:
+            data_x = model.predict(data_x)
 
         if model_type == 'conv':
             data_y[0] = data_x[0]

@@ -33,6 +33,7 @@ def mean_squared_error(y_true, y_pred):
 
 model_name = name_list.model_name
 model_type = name_list.model_type
+is_retrain = name_list.is_retrain
 # Load the model
 if model_type == 'conv':
     kernel_size = name_list.kernel_size
@@ -57,9 +58,9 @@ else:
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 11200
-prediction_month = 9
-directly_month = 1
+file_num = 426
+prediction_month = 1
+directly_month = 6
 data_preprocess_method = name_list.data_preprocess_method
 # for dense_model
 # predict_data = np.empty([1, 540])
@@ -74,6 +75,8 @@ if model_type == 'conv':
 else:
     data_x = np.empty([1, 1080])
 predict_data[0] = file_helper_unformatted.read_data_sstaha(file_num)
+if is_retrain:
+    predict_data = file_helper_unformatted.exchange_rows(predict_data)
 
 nino34 = [index_calculation.get_nino34(predict_data[0])]
 
@@ -117,7 +120,7 @@ for i in range(directly_month):
     # data preprocess no month mean
     if data_preprocess_method == 'nomonthmean':
         data_y = data_preprocess.no_month_mean(data_y, 1)
-    file_helper_unformatted.write_data(file_num + directly_month*prediction_month, data_y[0])
+    file_helper_unformatted.write_data(file_num + (i+1)*prediction_month, data_y[0])
     # nino34_temp1 = index_calculation.get_nino34(data_y[0])
     # nino34.append(nino34_temp1)
     # # write data for maximum value of nino34

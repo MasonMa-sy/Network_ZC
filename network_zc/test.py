@@ -3,8 +3,6 @@ import numpy as np
 from network_zc.tools import file_helper_unformatted, data_preprocess
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
-from keras.objectives import *
-import tensorflow as tf
 import network_zc.keras_contrib.backend as KC
 import math
 import struct
@@ -72,7 +70,7 @@ def corrcoef(x,y):
     return num/den
 
 
-x=np.array([1,2])
-print(x+1)
-
+data_sc = np.empty([1, 1], dtype='int32')
+data_sc[0] = [1]
+print(data_sc)
 

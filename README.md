@@ -20,3 +20,9 @@ Z20C form GODAS(Can not get data from GODAS directly):http://iridl.ldeo.columbia
 Z/20/invertontogrid/datafiles.html<br>
 The monthly mean is calculated using the historical data from 198001 to 201809.<br>
 The wind stress anomaly data for ZC prediction: https://iridl.ldeo.columbia.edu/SOURCES/.FSU/index.html<br>
+
+2019/01/25
+Add experiment of SPB, including plotting.
+
+2019/02/25
+Add experiment of seasonal circle as input. And for 'plot_nino34_prediction_for_month', add input way.

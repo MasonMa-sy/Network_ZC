@@ -2,16 +2,18 @@
 This script is for some parameter set.
 """
 # for model
-model_name = 'conv_model_dimensionless_to_historical'
+model_name = 'conv_model_dimensionless_1_historical_sc'
 model_type = 'conv'
 # for retrain model
-is_retrain = True
+is_retrain = False
 retrain_model_name = 'conv_model_dimensionless_to_historical_test_1'
 # for continue model
 continue_model_name = 'conv_model_dimensionless_to_historical_test_1'
 # for ssim
 kernel_size = 7
 max_value = 10
+# for seasonal circle
+is_seasonal_circle = True
 
 # for reading data
 data_file = 'data_historical'
