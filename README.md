@@ -26,3 +26,6 @@ Add experiment of SPB, including plotting.
 
 2019/02/25
 Add experiment of seasonal circle as input. And for 'plot_nino34_prediction_for_month', add input way.
+
+2019/03/22
+Determined the final model (no BN, with SC input). Add some script for analysis.

@@ -268,6 +268,16 @@ def find_logs(filename):
     return file
 
 
+def find_logs_final(filename):
+    file = '..\..\model\\best\\logs\\' + filename
+    return file
+
+
+def find_model_best(modelname):
+    file = 'best\\' + modelname
+    return file
+
+
 def exchange_rows(training_data):
     exchange_data = training_data.copy()
     rows = training_data.shape[1]

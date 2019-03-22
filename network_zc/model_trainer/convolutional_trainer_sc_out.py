@@ -1,6 +1,8 @@
 """
 To train neural networks for zc model using convolution layers.
 Add a sinusoid with the period of a year as attribute to contain information about the seasonal cycle.
+The input_sc is close to the output.
+This script is not used.
 """
 # Third-party libraries
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout, LeakyReLU, Conv2D, Conv2DTranspose, concatenate, \
@@ -9,6 +11,7 @@ from keras import optimizers
 from keras.models import Model
 from keras.callbacks import TensorBoard, ModelCheckpoint
 from keras import regularizers
+from keras.layers.normalization import BatchNormalization
 import keras.backend as K
 from network_zc.keras_contrib.losses import DSSIMObjective
 import numpy as np
@@ -24,7 +27,7 @@ data_preprocess_method = name_list.data_preprocess_method
 training_start = 0
 training_num = 464
 testing_num = 0
-epochs = 500
+epochs = 200
 batch_size = 32
 kernel_size = name_list.kernel_size
 max_value = name_list.max_value
@@ -50,38 +53,41 @@ if __name__ == '__main__':
     layer1 = Conv2D(filters=32, kernel_size=(4, 5), strides=2, padding='valid')(inputs)     # 2
     #layer1 = BatchNormalization()(layer1)                                               # 3
     layer1 = LeakyReLU(alpha=0.3)(layer1)                                               # 4
-    layer1 = Dropout(0.2)(layer1)                                                       # 5
+    #layer1 = Dropout(0.2)(layer1)                                                       # 5
     # 9x12 to 7x10
     layer2 = Conv2D(filters=64, kernel_size=3, strides=1, padding='valid')(layer1)      # 6
     #layer2 = BatchNormalization()(layer2)                                               # 7
     layer2 = LeakyReLU(alpha=0.3)(layer2)                                               # 8
-    layer2 = Dropout(0.2)(layer2)                                                       # 9
+    #layer2 = Dropout(0.2)(layer2)                                                       # 9
     # print(layer2.get_shape().as_list())
     layer3 = Flatten()(layer2)                                                          # 10
-    # add sc input
-    sc_input = Input(shape=(1,), dtype='int32')
-    sc_layer = Embedding(12, 64, input_length=1)(sc_input)
-    sc_layer = Flatten()(sc_layer)
-    sc_layer = Dense(70*64)(sc_layer)
-    #sc_layer = BatchNormalization()(sc_layer)  # ?
-    sc_layer = LeakyReLU(alpha=0.3)(sc_layer)  # ?
-    sc_layer = Dropout(0.2)(sc_layer)
-    layer3 = concatenate([layer3, sc_layer])
     layer3 = Dense(7*10*64)(layer3)                                                     # 11
     #layer3 = BatchNormalization()(layer3)                                               # 12
     layer3 = LeakyReLU(alpha=0.3)(layer3)                                               # 13
-    layer3 = Dropout(0.2)(layer3)                                                       # 14
+    #layer3 = Dropout(0.2)(layer3)                                                       # 14
     layer3 = Reshape((7, 10, 64))(layer3)                                               # 15
     layer4 = Conv2DTranspose(filters=32, kernel_size=3, strides=1, padding='valid')(layer3)     # 16
     #layer4 = BatchNormalization()(layer4)                                               # 17
     layer4 = LeakyReLU(alpha=0.3)(layer4)                                               # 18
-    layer4 = Dropout(0.2)(layer4)                                                       # 19
-    predictions = Conv2DTranspose(filters=2, kernel_size=(4, 5), strides=2,
+    #layer4 = Dropout(0.2)(layer4)                                                       # 19
+    layer4 = Conv2DTranspose(filters=2, kernel_size=(4, 5), strides=2,
                                   padding='valid', activation='linear')(layer4)         # 20
+    # add sc input
+    layer4 = Flatten()(layer4)
+    sc_input = Input(shape=(1,), dtype='int32')
+    sc_layer = Embedding(12, 64, input_length=1)(sc_input)
+    sc_layer = Flatten()(sc_layer)
+    sc_layer = Dense(20*27*2)(sc_layer)
+    # sc_layer = BatchNormalization()(sc_layer)  # ?
+    sc_layer = LeakyReLU(alpha=0.3)(sc_layer)  # ?
+    #sc_layer = Dropout(0.2)(sc_layer)
+    layer5 = concatenate([layer4, sc_layer])
+    layer5 = Dense(20*27*2)(layer5)
+    predictions = Reshape((20, 27, 2))(layer5)
 
     model = Model(inputs=[inputs, sc_input], outputs=predictions)
     # sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-    adam = optimizers.Adam(lr=0.000005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
+    adam = optimizers.Adam(lr=0.00005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-5, amsgrad=False)
     ssim = DSSIMObjectiveCustom(kernel_size=kernel_size, max_value=max_value)
     ssim_metrics = DSSIMObjectiveCustom(kernel_size=7, max_value=10)
 
@@ -124,4 +130,3 @@ if __name__ == '__main__':
     # model.save('..\..\model\\' + model_name + '.h5')
     with open(file_helper_unformatted.find_logs_final(model_name+'_train'), 'w') as f:
         f.write(str(train_hist.history))
-        f.write(str(save_best.best))

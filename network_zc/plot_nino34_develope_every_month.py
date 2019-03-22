@@ -1,6 +1,7 @@
 """
 for every @interval month, predict 1 to @prediction_month month, get nino34 index, and plot.
 it's just like the way that LDEO model often uses it. http://ocp.ldgo.columbia.edu/~dchen/forecast.html
+add seasonal circle 0304
 """
 # Third-party libraries
 from keras.layers import Input, Dense
@@ -34,6 +35,7 @@ def mean_squared_error(y_true, y_pred):
 
 model_name = name_list.model_name
 model_type = name_list.model_type
+is_seasonal_circle = name_list.is_seasonal_circle
 # Load the model
 if model_type == 'conv':
     kernel_size = name_list.kernel_size
@@ -58,7 +60,7 @@ elif model_type == 'dense':
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 11140
+file_num = 100
 month = 100
 interval = 12
 prediction_month = 12
@@ -71,6 +73,8 @@ data_preprocess_method = name_list.data_preprocess_method
 # for dense_model ssta and ha
 predict_data = np.empty([1, 20, 27, 2])
 data_y = np.empty([1, 20, 27, 2])
+if is_seasonal_circle:
+    data_sc = np.empty([1, 1], dtype='int32')
 if model_type == 'conv':
     data_x = np.empty([1, 20, 27, 2])
 elif model_type == 'dense':
@@ -99,7 +103,12 @@ for start_month in range(file_num, file_num + month - interval, interval):
         data_x[0] = np.reshape(predict_data[0], (1, 1080))
 
     for i in range(prediction_month):
-        data_x = model.predict(data_x)
+        if is_seasonal_circle:
+            data_sc[0] = [(start_month+i) % 12]
+            data_x = model.predict([data_x, data_sc])
+        else:
+            data_x = model.predict(data_x)
+        # data_x = model.predict(data_x)
 
         if model_type == 'conv':
             data_y[0] = data_x[0]

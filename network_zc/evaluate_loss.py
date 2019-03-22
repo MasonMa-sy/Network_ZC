@@ -36,6 +36,7 @@ if __name__ == '__main__':
     model_name = name_list.model_name
     model_type = name_list.model_type
     is_retrain = name_list.is_retrain
+    is_seasonal_circle = name_list.is_seasonal_circle
     # Load the model
     if model_type == 'conv':
         kernel_size = name_list.kernel_size
@@ -47,11 +48,11 @@ if __name__ == '__main__':
             a = 0.84
             return a * ssim(y_true, y_pred) + (1 - a) * mean_absolute_error(y_true, y_pred)
 
-        model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
+        model = load_model('..\model\\best\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
             'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error,
             'ssim_metrics': ssim_metrics, 'ssim_l1': ssim_l1, 'DSSIMObjective': ssim})
     elif model_type == 'dense':
-        model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error
+        model = load_model('..\model\\best\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error
             , 'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error})
 
     # training_start = 10800
@@ -64,6 +65,11 @@ if __name__ == '__main__':
     all_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, all_num)
     if is_retrain:
         all_data = file_helper_unformatted.exchange_rows(all_data)
+
+    if is_seasonal_circle:
+        sc = np.linspace(0, 11, 12, dtype='int32')
+        sc = np.tile(sc, int(all_num / 12 + 1))
+        data_sc = sc[training_start:all_num]
 
     # data preprocess z-zero
     if data_preprocess_method == 'preprocess_Z':
@@ -89,7 +95,9 @@ if __name__ == '__main__':
     # adam = optimizers.Adam(lr=0.00005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
     # model.compile(optimizer=adam, loss=mean_squared_error,
     #               metrics=[root_mean_squared_error, ssim_metrics, mean_absolute_error, mean_squared_error])
-
-    test_hist = model.evaluate(data_x, data_y, batch_size=batch_size, verbose=2)
+    if is_seasonal_circle:
+        test_hist = model.evaluate([data_x, data_sc], data_y, batch_size=batch_size, verbose=2)
+    else:
+        test_hist = model.evaluate(data_x, data_y, batch_size=batch_size, verbose=2)
     print(test_hist)
     print(model.metrics_names)

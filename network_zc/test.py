@@ -70,7 +70,6 @@ def corrcoef(x,y):
     return num/den
 
 
-data_sc = np.empty([1, 1], dtype='int32')
-data_sc[0] = [1]
-print(data_sc)
+a = list(range(100,101,1))
+print(a)
 

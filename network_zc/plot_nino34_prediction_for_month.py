@@ -1,6 +1,7 @@
 """
 for every @interval month, predict @prediction_month * @directly_month nino3.4 index,
 plot and calculate correlation coefficient.
+add seasonal circle 0225
 """
 # Third-party libraries
 from keras.layers import Input, Dense
@@ -33,6 +34,8 @@ def mean_squared_error(y_true, y_pred):
 
 
 model_name = name_list.model_name
+if name_list.is_best:
+    model_name = file_helper_unformatted.find_model_best(model_name)
 model_type = name_list.model_type
 is_retrain = name_list.is_retrain
 is_seasonal_circle = name_list.is_seasonal_circle
@@ -67,8 +70,8 @@ interval: Prediction interval
 prediction_month: For the model to predict month num
 directly_month: rolling run model times
 """
-file_num = 408
-month = 36
+file_num = 417
+month = 47
 interval = 1
 prediction_month = 1
 directly_month = 6
@@ -113,7 +116,7 @@ for start_month in range(file_num-prediction_month*directly_month, file_num+mont
 
     for i in range(directly_month):
         if is_seasonal_circle:
-            data_sc[0] = [(start_month+i) % 12]
+            data_sc[0] = [(start_month+i+4) % 12]
             data_x = model.predict([data_x, data_sc])
         else:
             data_x = model.predict(data_x)

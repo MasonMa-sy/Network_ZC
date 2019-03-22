@@ -5,7 +5,7 @@
 from keras.layers import Input, Dense
 from keras import optimizers
 from keras.models import Model
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, ModelCheckpoint
 import numpy as np
 from keras.models import load_model
 import keras.backend as K
@@ -37,6 +37,7 @@ if __name__ == '__main__':
     continue_model_name = name_list.continue_model_name
     model_type = name_list.model_type
     is_retrain = name_list.is_retrain
+    is_seasonal_circle = name_list.is_seasonal_circle
     # Load the model
     if model_type == 'conv':
         kernel_size = name_list.kernel_size
@@ -48,22 +49,26 @@ if __name__ == '__main__':
             a = 0.84
             return a * ssim(y_true, y_pred) + (1 - a) * mean_absolute_error(y_true, y_pred)
 
-        model = load_model('..\model\\' + continue_model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
+        model = load_model('..\model\\best\\' + continue_model_name + '@best.h5', custom_objects={'mean_squared_error': mean_squared_error,
             'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error,
             'ssim_metrics': ssim_metrics, 'ssim_l1': ssim_l1, 'DSSIMObjective': ssim})
     elif model_type == 'dense':
-        model = load_model('..\model\\' + continue_model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error
+        model = load_model('..\model\\best\\' + continue_model_name + '@best.h5', custom_objects={'mean_squared_error': mean_squared_error
             , 'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error})
     print(len(model.layers))
     training_start = 0
     all_num = 464
     batch_size = 32
-    epochs = 500
+    epochs = 200
     data_preprocess_method = name_list.data_preprocess_method
 
     all_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, all_num)
     if is_retrain:
         all_data = file_helper_unformatted.exchange_rows(all_data)
+    if is_seasonal_circle:
+        sc = np.linspace(0, 11, 12, dtype='int32')
+        sc = np.tile(sc, int((all_num - training_start) / 12 + 1))
+        data_sc = sc[:(all_num - training_start)]
 
     # data preprocess z-zero
     if data_preprocess_method == 'preprocess_Z':
@@ -91,9 +96,16 @@ if __name__ == '__main__':
     #     layer.trainable = True
     for layer in model.layers:
         print(layer.trainable)
-    tesorboard = TensorBoard('..\model\\tensorboard\\' + continue_model_name)
-    train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
-                           callbacks=[tesorboard], validation_split=0.1)
-    model.save('..\model\\' + continue_model_name + '.h5')
-    with open('..\model\\logs\\'+continue_model_name + '_train', 'w') as f:
+    save_best = ModelCheckpoint('..\model\\best\\' + continue_model_name + '@' + 'best.h5',
+                                monitor='val_root_mean_squared_error',
+                                verbose=1, save_best_only=True, mode='min', period=1)
+    if is_seasonal_circle:
+        train_hist = model.fit([data_x, data_sc], data_y, batch_size=batch_size, epochs=epochs, verbose=2,
+                               callbacks=[save_best], validation_split=0.1)
+    else:
+        train_hist = model.fit(data_x, data_y, batch_size=batch_size, epochs=epochs, verbose=2,
+                               callbacks=[save_best], validation_split=0.1)
+    # model.save('..\model\\' + continue_model_name + '.h5')
+    with open('..\model\\best\\logs\\'+continue_model_name+'_train', 'w') as f:
         f.write(str(train_hist.history))
+        f.write(str(save_best.best))
