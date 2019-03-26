@@ -184,6 +184,32 @@ def read_data_sstaha(num):
     return training_data
 
 
+def read_data_best(file_path, num):
+    """
+    For final paper plot and analysis
+    Read ssta and ha data of NO.num
+    :param file_path:
+    :param num:
+    :return: One-dimensional array,length 540
+    """
+    file_num = "%05d" % num
+    filename = file_path + '\data_' + file_num + ".dat"
+    fh = open(filename, mode='rb')
+    training_data = np.empty([20, 27, 2])
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            training_data[i][j][0] = text
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            training_data[i][j][1] = text
+    fh.close()
+    return training_data
+
+
 def write_data(num, data):
     """
     Write data named num containing data for dense.
@@ -193,6 +219,31 @@ def write_data(num, data):
     """
     file_num = "%05d" % num
     filename = data_file_statistics + file_num + ".dat"
+    data = np.reshape(data, (20, 27, 2))
+    with open(filename, 'wb') as fp:
+        #    data = fp.read(4)
+        for i in range(20):
+            for j in range(27):
+                temp = struct.pack("d", data[i][j][0])
+                fp.write(temp)
+        for i in range(20):
+            for j in range(27):
+                temp = struct.pack("d", data[i][j][1])
+                fp.write(temp)
+    fp.close()
+
+
+def write_data_best(file_path, num, data):
+    """
+    For final paper plot and analysis
+    Write data named num containing data for dense. If the directory is not exist, it will be made.
+    :param file_path:
+    :param num:
+    :param data:
+    :return:
+    """
+    file_num = "%05d" % num
+    filename = file_path + '\data_' + file_num + ".dat"
     data = np.reshape(data, (20, 27, 2))
     with open(filename, 'wb') as fp:
         #    data = fp.read(4)
@@ -285,3 +336,26 @@ def exchange_rows(training_data):
         exchange_data[:, i, :, :] = training_data[:, rows-i-1, :, :]
     return exchange_data
 
+
+def mkdir(path):
+    # 引入模块
+    import os
+    # 去除首位空格
+    path = path.strip()
+    # 去除尾部 \ 符号
+    path = path.rstrip("\\")
+    # 判断路径是否存在
+    # 存在     True
+    # 不存在   False
+    is_exists = os.path.exists(path)
+    # 判断结果
+    if not is_exists:
+        # 如果不存在则创建目录
+        # 创建目录操作函数
+        os.makedirs(path)
+        print(path + ' was created')
+        return True
+    else:
+        # 如果目录存在则不创建，并提示目录已存在
+        print(path + ' is existed')
+        return False

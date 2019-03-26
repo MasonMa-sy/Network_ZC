@@ -70,6 +70,5 @@ def corrcoef(x,y):
     return num/den
 
 
-a = list(range(100,101,1))
-print(a)
-
+data=[1,2,3]
+print(sum(data))

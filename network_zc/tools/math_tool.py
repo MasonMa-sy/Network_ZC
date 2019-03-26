@@ -20,3 +20,7 @@ def pearson_distance(vector1, vector2):
 
     if den == 0: return 0.0
     return num / den
+
+
+def calculate_rmse(y_true, y_pred):
+    return math.sqrt(np.sum((y_true-y_pred)**2)/y_true.size)

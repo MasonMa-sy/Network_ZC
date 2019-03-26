@@ -3,6 +3,9 @@ import struct
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
+from network_zc.plot_script.figure_plot import predict_369_data
+from network_zc.tools import name_list, file_helper_unformatted
+
 '''
 this script for read data of zc model's output.And draw the figure of sst.
 '''
@@ -17,30 +20,24 @@ y_resolition = 2
 lons = np.arange(east_border + 5 * x_resolution, 360 - west_border - 2 * x_resolution + 0.5, x_resolution)
 lats = np.arange(south_border + 5 * y_resolition, north_border - 5 * y_resolition + 0.5, 2)
 
-meteo_file = "predict_data_00434.dat"
+model_name = 'conv_model_dimensionless_1_historical_sc_5@best'
+if name_list.is_best:
+    model_name = file_helper_unformatted.find_model_best(model_name)
+model_type = name_list.model_type
+is_retrain = name_list.is_retrain
+is_seasonal_circle = name_list.is_seasonal_circle
+
+prediction_month = predict_369_data.prediction_month
+directly_month = predict_369_data.directly_month
+
+start_month = 420
+
+file_path = "D:\msy\projects\zc\zcdata\data_networks\\" + model_name + '\\' + str(directly_month) + '\\'
 # meteo_file = "1toh1init.dat"
 
-sst = np.empty([20, 27])
-h1 = np.empty([20, 27])
-with open(meteo_file, 'rb') as fp:
-    #    data = fp.read(4)
-    for i in range(20):
-        for j in range(27):
-            data = fp.read(8)  # type(data) === bytes
-            text = struct.unpack("d", data)[0]
-            sst[i][j] = text
-    for i in range(20):
-        for j in range(27):
-            data = fp.read(8)  # type(data) === bytes
-            text = struct.unpack("d", data)[0]
-            h1[i][j] = text
-fp.close()
-# while(count < 30):
-# 	list_temp2 = list_temp[count].split()
-# 	count = count + 1
-# 	sst.append(list_temp2)
-# sst = np.array(sst,dtype = 'float')
-
+data = file_helper_unformatted.read_data_best(file_path, start_month)
+sst = data[:, :, 0]
+h1 = data[:, :, 1]
 '''
 # 获取每个变量的值
 lons = fh.variables['xt_ocean'][:]
@@ -59,7 +56,7 @@ lat_0 = lats.mean()
 fig = plt.figure()
 
 ax = fig.add_subplot(211)
-ax.set_title(meteo_file)
+ax.set_title(str(start_month))
 
 m = Basemap(lat_0=lat_0, lon_0=lon_0, llcrnrlon=100, \
             llcrnrlat=-30, urcrnrlon=290, urcrnrlat=30, \

@@ -116,7 +116,7 @@ for start_month in range(file_num-prediction_month*directly_month, file_num+mont
 
     for i in range(directly_month):
         if is_seasonal_circle:
-            data_sc[0] = [(start_month+i+4) % 12]
+            data_sc[0] = [(start_month+i) % 12]
             data_x = model.predict([data_x, data_sc])
         else:
             data_x = model.predict(data_x)

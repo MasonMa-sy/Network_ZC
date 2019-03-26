@@ -2,7 +2,7 @@
 This script is for some parameter set.
 """
 # for model
-model_name = 'conv_model_dimensionless_1_historical_sc_small@best'
+model_name = 'conv_model_dimensionless_1_historical_3@best'
 model_type = 'conv'
 # for retrain model
 is_retrain = False
@@ -13,7 +13,7 @@ continue_model_name = 'conv_model_dimensionless_1_historical_sc_small@best'
 kernel_size = 7
 max_value = 10
 # for seasonal circle
-is_seasonal_circle = True
+is_seasonal_circle = False
 # for final essay
 is_best = True
 
