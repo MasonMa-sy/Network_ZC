@@ -32,13 +32,15 @@ def mean_squared_error(y_true, y_pred):
 
 
 def calculate_error(y_true, y_pred):
-    return np.sum((y_true-y_pred)**2)
+    return np.sum((y_true-y_pred)**2)/y_true.size
 
 
 model_name = name_list.model_name
 model_type = name_list.model_type
 is_retrain = name_list.is_retrain
 is_seasonal_circle = name_list.is_seasonal_circle
+if name_list.is_best:
+    model_name = file_helper_unformatted.find_model_best(model_name)
 # Load the model
 if model_type == 'conv':
     kernel_size = name_list.kernel_size
@@ -50,7 +52,7 @@ if model_type == 'conv':
         a = 0.84
         return a * ssim(y_true, y_pred) + (1 - a) * mean_absolute_error(y_true, y_pred)
 
-    model = load_model('..\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
+    model = load_model('D:\msy\projects\zc\\Network\model\\' + model_name + '.h5', custom_objects={'mean_squared_error': mean_squared_error,
             'root_mean_squared_error': root_mean_squared_error, 'mean_absolute_error': mean_absolute_error,
             'ssim_metrics': ssim_metrics, 'ssim_l1': ssim_l1, 'DSSIMObjective': ssim})
 else:
@@ -63,7 +65,12 @@ else:
 #     predict_data = np.empty([1, 540])
 #     predict_data[0] = data_loader.read_data(x)
 #     data_loader.write_data(x, model.predict(predict_data)[0])
-file_num = 198
+phase = 'historical'
+# phase = 'ZC'
+if phase == 'historical':
+    file_num = 417
+else:
+    file_num = 10809
 prediction_month = 1
 start_month_length = 12
 directly_month = 12
@@ -74,7 +81,7 @@ data_preprocess_method = name_list.data_preprocess_method
 # file_helper.write_data(file_num, model.predict(predict_data)[0])
 
 
-def calculate_12_month(start_month):
+def calculate_12_month(start_month_internal):
     # for dense_model ssta and ha
     predict_data = np.empty([1, 20, 27, 2])
     data_y = np.empty([1, 20, 27, 2])
@@ -85,7 +92,7 @@ def calculate_12_month(start_month):
         data_x = np.empty([1, 20, 27, 2])
     else:
         data_x = np.empty([1, 1080])
-    predict_data[0] = file_helper_unformatted.read_data_sstaha(start_month)
+    predict_data[0] = file_helper_unformatted.read_data_sstaha(start_month_internal)
     if is_retrain:
         predict_data = file_helper_unformatted.exchange_rows(predict_data)
 
@@ -136,13 +143,13 @@ def calculate_12_month(start_month):
         data_realistic[0] = file_helper_unformatted.read_data_sstaha(start_month+i+1)
         if is_retrain:
             data_realistic = file_helper_unformatted.exchange_rows(data_realistic)
-        # ssta_error[i] = calculate_error(data_y[0], data_realistic[0])
-        ssta_error[i] = math_tool.calculate_rmse(data_y[0], data_realistic[0])
+        ssta_error[i] = calculate_error(data_y[0], data_realistic[0])
+        # ssta_error[i] = math_tool.calculate_rmse(data_y[0], data_realistic[0])
     print(ssta_error)
     ssta_error2 = ssta_error.copy()
     for i in range(1, directly_month):
-        ssta_error2[i] = (ssta_error[i] - ssta_error[i-1])/10000
-    ssta_error2[0] = ssta_error2[0] / 10000
+        ssta_error2[i] = (ssta_error[i] - ssta_error[i-1])
+    ssta_error2[0] = ssta_error2[0]
     return ssta_error2
 
 
@@ -154,17 +161,34 @@ if __name__ == '__main__':
     print(ssta_error_all)
     x = np.linspace(0, 11, 12, dtype=int)
     y = np.linspace(0, 11, 12, dtype=int)
+    fig, ax = plt.subplots()
+    plt.tick_params(labelsize=15)
+    labels = ax.get_xticklabels() + ax.get_yticklabels()
+    [label.set_fontname('Times New Roman') for label in labels]
+
     plt.xlim(0, 11)
     plt.ylim(0, 11)
     plt.xticks(x, x+1)
-    plt.yticks(y, ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'])
+    plt.yticks(y, ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'])
+    # v = np.linspace(-20, 70, 10)
     plt.contourf(x, y, ssta_error_all)
     # plt.contour(x, y, ssta_error_all, 20)
     plt.colorbar()
-    plt.plot(x, 12 - x, 'r', linewidth=2)
+    if phase == 'historical':
+        plt.plot(x, 9 - x, 'blue', linewidth=2)
     # plt.plot(x, 13-x, 'r', linewidth=2)
     # plt.plot(x, 14 - x, 'r', linewidth=2)
     # plt.plot(x, 15 - x, 'r', linewidth=2)
+    font1 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 15}
+    if phase == 'historical':
+        ax.set_title('MSE growth rates of CNN-TRANS', fontsize=15, fontname='Times New Roman')
+    else:
+        ax.set_title('MSE growth rates of CNN-FREE', fontsize=15, fontname='Times New Roman')
+    ax.set_ylabel('Start month', font1)
+    ax.set_xlabel('Lead time(month)', font1)
+    plt.set_cmap('Reds')
     plt.show()
 
 # print(ssta_error)

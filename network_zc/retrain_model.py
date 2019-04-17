@@ -60,7 +60,7 @@ if __name__ == '__main__':
     training_start = 0
     all_num = 464
     batch_size = 32
-    epochs = 500
+    epochs = 1000
     data_preprocess_method = name_list.data_preprocess_method
 
     all_data, testing_data = file_helper_unformatted.load_sstha_for_conv2d(training_start, all_num)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     #     layer.trainable = True
     for layer in model.layers:
         print(layer.trainable)
-    adam = optimizers.Adam(lr=0.000003, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
+    adam = optimizers.Adam(lr=0.000005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
     if model_type == 'dense':
         model.compile(optimizer=adam, loss=mean_squared_error, metrics=[mean_squared_error, root_mean_squared_error
                                                                     ,mean_absolute_error])

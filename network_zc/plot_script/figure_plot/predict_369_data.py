@@ -34,6 +34,8 @@ def mean_squared_error(y_true, y_pred):
     return K.mean(K.square(y_pred - y_true), axis=-1)
 
 
+# file_num = 10800
+# month = 100
 file_num = 417
 month = 47
 interval = 1

@@ -190,10 +190,36 @@ def read_data_best(file_path, num):
     Read ssta and ha data of NO.num
     :param file_path:
     :param num:
-    :return: One-dimensional array,length 540
+    :return: two-dimensional array,length 540
     """
     file_num = "%05d" % num
     filename = file_path + '\data_' + file_num + ".dat"
+    fh = open(filename, mode='rb')
+    training_data = np.empty([20, 27, 2])
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            training_data[i][j][0] = text
+    for i in range(20):
+        for j in range(27):
+            data = fh.read(8)  # type(data) === bytes
+            text = struct.unpack("d", data)[0]
+            training_data[i][j][1] = text
+    fh.close()
+    return training_data
+
+
+def read_data_historical(file_path, num):
+    """
+    For final paper plot and analysis
+    Read ssta and ha data of NO.num
+    :param file_path:
+    :param num:
+    :return: two-dimensional array,length 540
+    """
+    file_num = "%05d" % num
+    filename = file_path + '\data_historical_' + file_num + ".dat"
     fh = open(filename, mode='rb')
     training_data = np.empty([20, 27, 2])
     for i in range(20):

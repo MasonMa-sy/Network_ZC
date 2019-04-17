@@ -19,7 +19,7 @@ Z20C form GODAS(Can not get data from GODAS directly):http://iridl.ldeo.columbia
 .GODAS/.monthly/.BelowSeaLevel/.POT/Y/%28-20%29%2820%29RANGE/X/122.25/288.75/RANGE/%28Celsius_scale%29unitconvert/
 Z/20/invertontogrid/datafiles.html<br>
 The monthly mean is calculated using the historical data from 198001 to 201809.<br>
-The wind stress anomaly data for ZC prediction: https://iridl.ldeo.columbia.edu/SOURCES/.FSU/index.html<br>
+The wind stress anomaly data for ZC prediction: https://iridl.ldeo.columbia.edu/SOURCES/.FSU/index.html 196401 to 200202<br>
 
 2019/01/25
 Add experiment of SPB, including plotting.

@@ -37,8 +37,8 @@ interval: Prediction interval
 prediction_month: For the model to predict month num
 directly_month: rolling run model times
 """
-file_num = 417
-month = 47
+file_num = predict_369_data.file_num
+month = predict_369_data.month
 interval = 1
 prediction_month = predict_369_data.prediction_month
 directly_month = predict_369_data.directly_month
