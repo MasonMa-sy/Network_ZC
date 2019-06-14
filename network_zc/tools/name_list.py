@@ -2,10 +2,10 @@
 This script is for some parameter set.
 """
 # for model
-model_name = 'conv_model_dimensionless_1_ZC_sc_1_to_historical@best'
+model_name = 'conv_model_dimensionless_1_ZC_sc_1#mae_bs4'
 model_type = 'conv'
 # for retrain model, because ZC data and observation data are symmetrical with the equator
-is_retrain = True
+is_retrain = False
 retrain_model_name = 'conv_model_dimensionless_1_ZC_sc_1_to_historical_5'
 # for continue model
 continue_model_name = 'conv_model_dimensionless_1_historical_sc_small@best'
@@ -15,13 +15,13 @@ max_value = 10
 # for seasonal circle
 is_seasonal_circle = True
 # for final essay
-is_best = True
+is_best = False
 
 # for reading data
-# data_file = 'data_nature2'
-# data_name = '\data_'
-data_file = 'data_historical'
-data_name = '\data_historical_'
+data_file = 'data_nature2'
+data_name = '\data_'
+# data_file = 'data_historical'
+# data_name = '\data_historical_'
 # data_file = 'data_test'
 # data_name = '\predict_data_'
 # data_file = 'data_predict_0'

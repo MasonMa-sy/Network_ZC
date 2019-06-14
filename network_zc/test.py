@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import numpy as np
-from network_zc.tools import file_helper_unformatted, data_preprocess
+from network_zc.tools import file_helper_unformatted, data_preprocess, name_list
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 import network_zc.keras_contrib.backend as KC
@@ -69,16 +69,25 @@ def corrcoef(x,y):
     den=math.sqrt((sumofx2-float(sum1**2)/n)*(sumofy2-float(sum2**2)/n))
     return num/den
 
-import numpy as np
+
+import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
+myfont = matplotlib.font_manager.FontProperties(fname="Light.ttc")
+plt.rcParams['axes.unicode_minus'] = False
+fig, ax = plt.subplots()
+plt.tick_params(labelsize=15)
+labels = ax.get_xticklabels() + ax.get_yticklabels()
+[label.set_fontname('Times New Roman') for label in labels]
 
-fig, axs =plt.subplots(2,1)
-clust_data = np.random.random((10,3))
-collabel=("col 1", "col 2", "col 3")
-axs[0].axis('tight')
-axs[0].axis('off')
-the_table = axs[0].table(cellText=clust_data,colLabels=collabel,loc='center')
-
-axs[1].plot(clust_data[:,0],clust_data[:,1])
+font = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 15}
+row1 = '练度'
+row2 = '星级'
+plt.legend([row1, row2], loc='upper right', prop=font, framealpha=1)
+ax.set_title('练度/星级与氪金')
+ax.set_ylabel('练度/星级', font)
+ax.set_xlabel('氪金', font)
 plt.show()

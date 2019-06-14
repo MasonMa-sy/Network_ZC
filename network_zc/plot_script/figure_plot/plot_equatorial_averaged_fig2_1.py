@@ -22,9 +22,10 @@ def get_sst_equatorial_from_data(file_num1, month1):
     return sst_equatorial
 
 
+# free 1200
 # forced 192
 # historical 0
-file_num = 0
+file_num = 1200
 month = 240
 
 grid_length = 27
@@ -58,8 +59,14 @@ plt.ylim(0, month-1)
 x_ticks1 = np.linspace(1.8888, 23.2222, 4)
 x_ticks2 = ['140E', '180', '140W', '100W']
 plt.xticks(x_ticks1, x_ticks2)
+
+str_months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+# revise1
+# y_ticks1 = np.arange(0, month, 12, dtype=int)
+# y_ticks2 = np.arange(file_num, file_num+month, 12, dtype=int)
 y_ticks1 = np.arange(0, month, 12, dtype=int)
-y_ticks2 = np.arange(file_num, file_num+month, 12, dtype=int)
+# y_ticks2 = ['Jan-'+str(x) for x in np.arange(80, 100, 1, dtype=int)]
+y_ticks2 = ['Jan-'+str(x) for x in np.arange(100, 120, 1, dtype=int)]
 plt.yticks(y_ticks1, y_ticks2)
 
 v = np.linspace(-3.0, 6.0, 10, endpoint=True)
@@ -69,7 +76,8 @@ plt.set_cmap('jet')
 position = fig.add_axes([0.15, 0.05, 0.7, 0.03])
 plt.colorbar(cax=position, orientation='horizontal')
 
-plt.show()
+ax.set_title('Free ZC data', fontsize=12, fontname='Times New Roman')
+# ax.set_title('Forced ZC data', fontsize=12, fontname='Times New Roman')
+# ax.set_title('Historical data', fontsize=12, fontname='Times New Roman')
 
 plt.show()
-

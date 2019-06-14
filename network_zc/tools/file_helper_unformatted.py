@@ -61,8 +61,10 @@ def read_data(num):
     :param num:
     :return: One-dimensional array,length 540
     """
+    data_file_change = name_list.data_file
+    data_name_change = name_list.data_name
     file_num = "%05d" % num
-    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_name + file_num + ".dat"
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file_change + data_name_change + file_num + ".dat"
     fh = open(filename, mode='r')
     list_temp = []
     for line in fh:
@@ -100,7 +102,7 @@ def load_sstha_for_conv2d(training_start, training_num, testing_num=0):
         testing_data = np.empty([testing_num - training_num, 20, 27, 2])
         num = training_num + 1
         while num <= testing_num:
-            testing_data[num] = read_data(num)
+            testing_data[num] = read_data_sstaha(num)
             num += 1
     return training_data, testing_data
 
@@ -166,8 +168,10 @@ def read_data_sstaha(num):
     :param num:
     :return: One-dimensional array,length 540
     """
+    data_file_change = name_list.data_file
+    data_name_change = name_list.data_name
     file_num = "%05d" % num
-    filename = "D:\msy\projects\zc\zcdata\\" + data_file + data_name + file_num + ".dat"
+    filename = "D:\msy\projects\zc\zcdata\\" + data_file_change + data_name_change + file_num + ".dat"
     fh = open(filename, mode='rb')
     training_data = np.empty([20, 27, 2])
     for i in range(20):
