@@ -29,3 +29,6 @@ Add experiment of seasonal circle as input. And for 'plot_nino34_prediction_for_
 
 2019/03/22
 Determined the final model (no BN, with SC input). Add some script for analysis.
+
+2019/06/14
+Revise paper, change some plot scripts.
